@@ -1,17 +1,13 @@
 from django.db import models
-from user_role_management.common.models import BaseModel
-
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager as BUM, PermissionsMixin, Group, GroupManager, Permission
-# from guardian.models import
 from django.utils.translation import gettext_lazy as _
-
+from user_role_management.common.models import BaseModel
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager as BUM, PermissionsMixin, Group, GroupManager, Permission
 
 
 class UserTypesChoices(models.TextChoices):
     STAFF = '1', 'staff'
     CUSTOMER = '2', 'customer'
     SUPERVISOR = '3', 'supervisor'
-
 
 
 class BaseUserManager(BUM):
@@ -61,6 +57,7 @@ class BaseUserManager(BUM):
 
 class Company(BaseModel):
     title = models.CharField(max_length=155)
+    users = models.ManyToManyField('BaseUser')
 
     def __str__(self):
         return str(self.title)
@@ -85,10 +82,7 @@ class CompanyGroups(models.Model):
         return f"{self.company} - {self.group}"
 
     def save(self, *args, **kwargs):
-        # Check if the name field is empty before setting it
-        if not self.name:
-            # Concatenate group name and company name
-            self.name = f"{self.company.title}_{self.group.name}"
+        self.name = self.name if self.name else f"{self.company.title}_{self.group.name}"
 
         super().save(*args, **kwargs)
 
@@ -111,8 +105,87 @@ class BaseUser(BaseModel, AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = "email"
 
+    class Meta:
+        verbose_name = _("user")
+        verbose_name_plural = _("users")
+
     def __str__(self):
         return self.email
+
+
+class Assigned_customer(models.Model):
+    user = models.ForeignKey(BaseUser, on_delete=models.DO_NOTHING, related_name='user')
+    customer = models.ForeignKey(BaseUser, on_delete=models.DO_NOTHING, related_name='customer')
+
+    def __str__(self):
+        return f"{self.user.email}: {self.customer.email}"
+
+
+class Employee(BaseModel):
+    company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
+    personnel_code = models.CharField(max_length=15)
+    user = models.ForeignKey(BaseUser, on_delete=models.DO_NOTHING)
+
+    def __str__(self):
+        return f"{self.company.title}-{self.user.email}"
+
+
+class Position(models.Model):
+    title = models.CharField(max_length=255)
+    abbreviation = models.CharField(max_length=55, null=True, blank=True)
+    employees = models.ManyToManyField(Employee)
+
+    def __str__(self):
+        return str(self.title)
+
+
+class Department(BaseModel):
+    title = models.CharField(max_length=255)
+    abbreviation = models.CharField(max_length=55, null=True, blank=True)
+
+    def __str__(self):
+        return str(self.title)
+
+
+class Company_departments(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
+    department = models.ForeignKey(Department, on_delete=models.DO_NOTHING, related_name='department')
+    parent_department = models.ForeignKey(Department, on_delete=models.DO_NOTHING, related_name='parent_department')
+    manager = models.ForeignKey(Employee, on_delete=models.DO_NOTHING)
+
+    def __str__(self):
+        return f"{self.company.title}-{self.department.title}"
+
+
+class Company_departments_employees(models.Model):
+    company_departments = models.ForeignKey(Company_departments, on_delete=models.DO_NOTHING)
+    employee = models.ForeignKey(Employee, on_delete=models.DO_NOTHING, related_name='employee')
+    supervisor = models.ForeignKey(Employee, on_delete=models.DO_NOTHING, related_name='supervisor')
+
+    def __str__(self):
+        return f"{self.company_departments}-{self.employee.user.email}"
+
+
+class Company_branches(BaseModel):
+    company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
+    branch_title = models.CharField(max_length=255)
+    branch_manager = models.ForeignKey(Employee, on_delete=models.DO_NOTHING, related_name='branch_manager')
+    employees = models.ManyToManyField(Employee)
+
+    def __str__(self):
+        return f"{self.company.title}-{self.branch_title}"
+
+
+class Shift(BaseModel):
+    started_at = models.DateTimeField()
+    ended_at = models.DateTimeField()
+    created_by = models.ForeignKey(BaseUser, on_delete=models.DO_NOTHING)
+    # company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
+    companies = models.ManyToManyField(Company)
+    employees = models.ManyToManyField(Employee)
+
+    def __str__(self):
+        return f"{self.started_at}-{self.ended_at}"
 
 
 class Process(models.Model):
