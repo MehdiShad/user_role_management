@@ -1,15 +1,15 @@
-from collections import OrderedDict
-
 from django import forms
 from django.conf import settings
-from django.contrib import admin, messages
-from django.contrib.admin.widgets import FilteredSelectMultiple
-from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404, redirect, render
+from collections import OrderedDict
 from django.urls import reverse, path
-from django.utils.translation import gettext_lazy as _
+from django.contrib import admin, messages
 from django.utils.translation import gettext
+from django.contrib.auth import get_user_model
+from django.utils.translation import gettext_lazy as _
 from user_role_management.users.models import CompanyGroups
+from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.shortcuts import get_object_or_404, redirect, render
+from user_role_management.guardian.models import GroupObjectPermission, UserObjectPermission
 from user_role_management.guardian.forms import GroupObjectPermissionsForm, UserObjectPermissionsForm
 from user_role_management.guardian.shortcuts import (get_group_perms, get_groups_with_perms, get_perms_for_model, get_user_perms,
                                 get_users_with_perms)
@@ -472,3 +472,16 @@ class GroupManage(forms.Form):
         except CompanyGroups.DoesNotExist:
             raise forms.ValidationError(
                 self.fields['group'].error_messages['does_not_exist'])
+
+
+
+@admin.register(GroupObjectPermission)
+class GroupObjectPermissionAdmin(admin.ModelAdmin):
+    list_display = ['id', 'content_type', 'group', 'permission', 'object_pk']
+    list_display_links = ['id', 'content_type']
+
+
+@admin.register(UserObjectPermission)
+class UserObjectPermissionAdmin(admin.ModelAdmin):
+    list_display = ['id', 'content_type', 'user', 'permission', 'object_pk']
+    list_display_links = ['id', 'content_type']

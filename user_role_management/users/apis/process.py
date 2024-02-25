@@ -5,8 +5,8 @@ from rest_framework import status, serializers
 from drf_spectacular.utils import extend_schema
 from user_role_management.users.models import Process
 from user_role_management.api.mixins import ApiAuthMixin
-from user_role_management.users.services import create_process
-from user_role_management.users.selectors import get_all_processes
+from user_role_management.users.services import process as process_services
+from user_role_management.users.selectors import process as process_selector
 from user_role_management.api.pagination import LimitOffsetPagination, get_paginated_response_context
 from user_role_management.core.exceptions import handle_validation_error, error_response, success_response
 
@@ -59,7 +59,7 @@ class ProcessesApi(ApiAuthMixin, APIView):
         if not isinstance(validation_result, bool):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
         try:
-            process = create_process(request, **serializer.validated_data)
+            process = process_services.create_process(request, **serializer.validated_data)
             if not process['is_success']:
                 return Response(process, status=status.HTTP_400_BAD_REQUEST)
             return Response(CustomProcessesSingleResponseSerializer(process, context={"request": request}).data)
@@ -80,7 +80,7 @@ class ProcessesApi(ApiAuthMixin, APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            attendance = get_all_processes(request)
+            attendance = process_selector.get_all_processes(request)
             return get_paginated_response_context(
                 request=request,
                 pagination_class=self.Pagination,

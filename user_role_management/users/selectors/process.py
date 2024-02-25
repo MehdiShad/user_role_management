@@ -1,6 +1,6 @@
-from .models import BaseUser, Process
-from django.db.models import QuerySet
 from django.http import HttpRequest
+from django.db.models import QuerySet
+from user_role_management.users.models import Process
 from user_role_management.guardian.shortcuts import get_objects_for_user
 from django.contrib.auth.decorators import login_required, permission_required
 

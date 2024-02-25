@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import QuerySet
 from django.utils.translation import gettext_lazy as _
 from user_role_management.common.models import BaseModel
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager as BUM, PermissionsMixin, Group, GroupManager, Permission
@@ -100,6 +101,17 @@ class BaseUser(BaseModel, AbstractBaseUser, PermissionsMixin):
     type = models.CharField(max_length=50, choices=UserTypesChoices.choices, default='2')
     is_staff = models.BooleanField(default=False)
     last_company_logged_in = models.ForeignKey(Company, on_delete=models.DO_NOTHING, null=True, blank=True)
+    company_groups = models.ManyToManyField(
+        CompanyGroups,
+        verbose_name=_("company_groups"),
+        blank=True,
+        help_text=_(
+            "The company_groups this user belongs to. A user will get all permissions "
+            "granted to each of their company_groups."
+        ),
+        related_name="base_user_set",
+        related_query_name="base_user",
+    )
 
     objects = BaseUserManager()
 
@@ -126,12 +138,20 @@ class Employee(BaseModel):
     personnel_code = models.CharField(max_length=15)
     user = models.ForeignKey(BaseUser, on_delete=models.DO_NOTHING)
 
+    class Meta:
+        unique_together = [
+            ('company', 'user'),
+            ('user', 'personnel_code'),
+            ('company', 'personnel_code'),
+            ('user', 'company', 'personnel_code')
+        ]
+
     def __str__(self):
         return f"{self.company.title}-{self.user.email}"
 
 
 class Position(models.Model):
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, unique=True)
     abbreviation = models.CharField(max_length=55, null=True, blank=True)
     employees = models.ManyToManyField(Employee)
 
@@ -140,7 +160,7 @@ class Position(models.Model):
 
 
 class Department(BaseModel):
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, unique=True)
     abbreviation = models.CharField(max_length=55, null=True, blank=True)
 
     def __str__(self):
@@ -150,8 +170,11 @@ class Department(BaseModel):
 class Company_departments(models.Model):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     department = models.ForeignKey(Department, on_delete=models.DO_NOTHING, related_name='department')
-    parent_department = models.ForeignKey(Department, on_delete=models.DO_NOTHING, related_name='parent_department')
+    parent_department = models.ForeignKey('self', on_delete=models.DO_NOTHING, null=True, blank=True, related_name='parent_company_department')
     manager = models.ForeignKey(Employee, on_delete=models.DO_NOTHING)
+
+    class Meta:
+        unique_together = ['company', 'department']
 
     def __str__(self):
         return f"{self.company.title}-{self.department.title}"
@@ -162,6 +185,9 @@ class Company_departments_employees(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.DO_NOTHING, related_name='employee')
     supervisor = models.ForeignKey(Employee, on_delete=models.DO_NOTHING, related_name='supervisor')
 
+    class Meta:
+        unique_together = ['company_departments', 'employee']
+
     def __str__(self):
         return f"{self.company_departments}-{self.employee.user.email}"
 
@@ -171,6 +197,9 @@ class Company_branches(BaseModel):
     branch_title = models.CharField(max_length=255)
     branch_manager = models.ForeignKey(Employee, on_delete=models.DO_NOTHING, related_name='branch_manager')
     employees = models.ManyToManyField(Employee)
+
+    class Meta:
+        unique_together = ['company', 'branch_title']
 
     def __str__(self):
         return f"{self.company.title}-{self.branch_title}"
@@ -184,6 +213,10 @@ class Shift(BaseModel):
     companies = models.ManyToManyField(Company)
     employees = models.ManyToManyField(Employee)
 
+    class Meta:
+        unique_together = ['started_at', 'ended_at']
+
+
     def __str__(self):
         return f"{self.started_at}-{self.ended_at}"
 
@@ -195,6 +228,7 @@ class Process(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     class Meta:
+        unique_together = ['company', 'name']
         permissions = [('dg_can_view_process', 'OBP can view process'), ('dg_can_start_process', 'OBP can start process')]
 
     def __str__(self):
