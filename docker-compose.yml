@@ -1,0 +1,133 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:14.1
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    container_name: user_role_management_db
+    ports:
+      - ${DB_PORT}:5432
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+  #  rabbitmq:
+  #    image: "rabbitmq:alpine"
+  #    ports:
+  #      - ${RABBITMQ_PORT}:5672
+  #    container_name: rabbitmq
+  #    healthcheck:
+  #      test: rabbitmq-diagnostics -q ping
+  #      interval: 30s
+  #      timeout: 30s
+  #      retries: 3
+  django_gunicorn:
+    volumes:
+      - static:/static
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: docker/production.Dockerfile
+    container_name: django_gunicorn
+    command: entrypoint.sh
+#    command: gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
+#    command: gunicorn config.asgi:application -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
+    ports:
+      - "8061:8000"
+    depends_on:
+      - db
+    #      - rabbitmq
+    restart: on-failure
+
+#  nginx:
+#    build: ./nginx
+#    volumes:
+#      - static:/static
+#    ports:
+#      - "80:80"
+#    depends_on:
+#      - db
+#      - django_gunicorn
+
+
+#  django:
+#    build:
+#      context: .
+#      dockerfile: docker/production.Dockerfile
+#    container_name: exhibition_django
+#    #    command: ./docker/web_entrypoint.sh
+#    command: python manage.py runserver 0.0.0.0:8000
+##    command: daphne config.asgi:application
+#    environment:
+#      - DATABASE_URL=${DATABASE_URL}
+#      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+#    volumes:
+#      - .:/app
+#    ports:
+#      - "${DJANGO_PORT}:8000"
+#    depends_on:
+#      - db
+#    #      - rabbitmq
+#    restart: on-failure
+
+
+#  daphne:
+#    build:
+#      context: .
+#      dockerfile: docker/production.Dockerfile
+#    container_name: daphne
+#    command: daphne config.asgi:application
+#    volumes:
+#      - .:/app
+#    ports:
+#      - 8003:8000
+#    depends_on:
+#      - db
+#    #      - rabbitmq
+#    restart: on-failure
+
+#  celery:
+#    build:
+#      context: .
+#      dockerfile: docker/production.Dockerfile
+#    container_name: worker
+#    command: celery -A exhibition.tasks worker -l info --without-gossip --without-mingle --without-heartbeat
+##    command: ./docker/celery_entrypoint.sh
+#    environment:
+#      - DATABASE_URL=${DATABASE_URL}
+#      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+#    volumes:
+#      - .:/app
+#    depends_on:
+#      - db
+#      - rabbitmq
+#    restart: on-failure
+
+#  beats:
+#    build:
+#      context: .
+#      dockerfile: docker/production.Dockerfile
+#    container_name: beats
+##    command: ./docker/beats_entrypoint.sh
+#    command:
+#      - sh
+#      - -c
+#      - |
+#        python manage.py setup_periodic_tasks
+#        celery -A brxdatagrabber.tasks beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+#    environment:
+#      - DATABASE_URL=${DATABASE_URL}
+#      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+#    volumes:
+#      - .:/app
+#    depends_on:
+#      - db
+#      - rabbitmq
+#    restart: on-failure
+
+
+volumes:
+  static:
