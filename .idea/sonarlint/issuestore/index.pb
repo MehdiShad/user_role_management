@@ -63,8 +63,6 @@ T
 $user_role_management/common/utils.py,4\9\4967b2a0dc61bb2221989cf6d29aa2d00764bd44
 U
 %user_role_management/core/__init__.py,a\6\a6b73856978395785c61dc07d8df879285f0e7f6
-U
-%user_role_management/common/models.py,4\9\498a846e01d7279ac489668385d09702aa629efe
 V
 &user_role_management/utils/__init__.py,9\b\9bb29e72c5f7b64155f9cdad63437e23a244eac2
 V
@@ -77,8 +75,6 @@ W
 'user_role_management/common/services.py,d\5\d5fe527898c3f360bfc408fe653a545d42f678b1
 X
 (user_role_management/utils/tests/base.py,b\2\b29b1e2a6c57544077397d9da519e096d307d98a
-[
-+user_role_management/authentication/apps.py,a\0\a026504b07a3a588050d2690ae780b773426f674
 \
 ,user_role_management/utils/tests/__init__.py,1\b\1b881430f18096d147d2976dab8ebc7b5e9f314e
 9
@@ -119,12 +115,6 @@ B
 docker-compose.yml,3\5\35b8c13cf2eb2a194eada000eb310d65aed53b2a
 F
 config/settings/jwt.py,8\a\8a4c2992f88dcac1d74c132f0c5f280baa7ab3c3
-[
-+user_role_management/authentication/urls.py,7\6\763a9e7ec1c961b51dda42c8702b94283f06210d
-\
-,user_role_management/authentication/views.py,6\8\68be6e15a2aa89b8f452c9d1e746fc5e0f0862ee
-W
-'user_role_management/core/exceptions.py,0\e\0e68e86b202b4da231df8aecd0169cdf4a9a0760
 X
 (user_role_management/users/validators.py,5\c\5c3a4afa1f1cdf540e62bb9d8ab4b0f143bff8e9
 9

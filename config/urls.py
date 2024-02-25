@@ -7,16 +7,27 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+from drf_spectacular.settings import spectacular_settings
+
 
 urlpatterns = [
-    path("schema/", SpectacularAPIView.as_view(api_version="v1"), name="schema"),
+
     path('admin/', admin.site.urls),
     path('api/', include(('user_role_management.api.urls', 'api'))),
 ]
 
 if settings.DEBUG:
+
+    spectacular_settings.SWAGGER_UI_SETTINGS = {
+        'deepLinking': True,
+        'docExpansion': 'none',
+        'defaultModelsExpandDepth': -1,
+        'displayOperationId': False,
+    }
+
     urlpatterns += [
         path("docs/swagger-ui", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+        path("schema/", SpectacularAPIView.as_view(api_version="v1"), name="schema"),
         path("redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     ]
 

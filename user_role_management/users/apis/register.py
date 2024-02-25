@@ -56,7 +56,7 @@ class RegisterApi(APIView):
 
             return data
 
-    @extend_schema(request=InputRegisterSerializer, responses=OutPutRegisterSerializer)
+    @extend_schema(request=InputRegisterSerializer, responses=OutPutRegisterSerializer, tags=['Authentication'])
     def post(self, request):
         serializer = self.InputRegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

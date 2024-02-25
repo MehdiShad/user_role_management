@@ -50,11 +50,9 @@ def error_response(
 ):
     return {
         "is_success": False,
-        "data": {
-            "error_type": error_type,
-            "params": params,
-            "message": message,
-        }
+        "error_type": error_type,
+        "params": params,
+        "message": message,
     }
 
 
@@ -62,7 +60,10 @@ def success_response(
         *,
         data: dict = {},
 ):
-    return {
+    response = {
         "is_success": True,
-        "data": data
     }
+    if data:
+        response['data'] = data
+
+    return response
