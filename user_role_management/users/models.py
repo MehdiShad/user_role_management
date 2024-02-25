@@ -15,11 +15,11 @@ class UserTypesChoices(models.TextChoices):
 
 
 class BaseUserManager(BUM):
-    def create_user(self, email, is_active=True, is_admin=False, password=None):
+    def create_user(self, email, is_active=True, is_admin=False, password=None, is_staff=False):
         if not email:
             raise ValueError("Users must have an email address")
 
-        user = self.model(email=self.normalize_email(email.lower()), is_active=is_active, is_admin=is_admin)
+        user = self.model(email=self.normalize_email(email.lower()), is_active=is_active, is_admin=is_admin, is_staff=is_staff)
 
         if password is not None:
             user.set_password(password)
@@ -36,6 +36,7 @@ class BaseUserManager(BUM):
             email=email,
             is_active=True,
             is_admin=True,
+            is_staff=True,
             password=password,
         )
 
@@ -95,15 +96,16 @@ class CompanyGroups(models.Model):
         return (self.company,)
 
 
-
 class BaseUser(BaseModel, AbstractBaseUser, PermissionsMixin):
 
     email = models.EmailField(verbose_name="email address", unique=True)
+    first_name = models.CharField(max_length=255, null=True, blank=True)
+    last_name = models.CharField(max_length=255, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     type = models.CharField(max_length=50, choices=UserTypesChoices.choices, default='2')
     is_staff = models.BooleanField(default=False)
-    last_company_logged_in = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
+    last_company_logged_in = models.ForeignKey(Company, on_delete=models.DO_NOTHING, null=True, blank=True)
 
     objects = BaseUserManager()
 

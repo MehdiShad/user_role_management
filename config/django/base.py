@@ -18,6 +18,7 @@ LOCAL_APPS = [
     'user_role_management.common.apps.CommonConfig',
     'user_role_management.users.apps.UsersConfig',
     'user_role_management.authentication.apps.AuthenticationConfig',
+    'user_role_management.guardian.apps.GuardianConfig',
 ]
 
 THIRD_PARTY_APPS = [
@@ -28,7 +29,6 @@ THIRD_PARTY_APPS = [
     'corsheaders',
     'drf_spectacular',
     'django_extensions',
-    'guardian',
 ]
 
 INSTALLED_APPS = [
@@ -81,8 +81,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
-    'default': env.db('DATABASE_URL', default='psql://postgres:2011@127.0.0.1:5432/usermanagement'),
+    'default': env.db('DATABASE_URL', default='psql://postgres:2011@127.0.0.1:5432/user_management'),
 }
+
 DATABASES['default']['ATOMIC_REQUESTS'] = True
 
 
@@ -164,8 +165,8 @@ APP_DOMAIN = env("APP_DOMAIN", default="http://localhost:8000")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend', # default
-    'guardian.backends.ObjectPermissionBackend',
+    'django.contrib.auth.backends.ModelBackend',  # default
+    'user_role_management.guardian.backends.ObjectPermissionBackend',
 )
 
 

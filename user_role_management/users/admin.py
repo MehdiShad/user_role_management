@@ -1,8 +1,9 @@
 from django.contrib import admin
-from usermanagement.users import models
-from guardian.admin import GuardedModelAdmin
-from guardian.shortcuts import get_objects_for_user, assign_perm
-from guardian.models import GroupObjectPermission, UserObjectPermission
+from user_role_management.users import models
+from user_role_management.guardian.admin import GuardedModelAdmin
+from user_role_management.guardian.shortcuts import get_objects_for_user, assign_perm
+from user_role_management.guardian.models import GroupObjectPermission, UserObjectPermission
+
 
 @admin.register(GroupObjectPermission)
 class GroupObjectPermissionAdmin(admin.ModelAdmin):

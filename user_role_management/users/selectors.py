@@ -1,7 +1,7 @@
 from .models import BaseUser, Process
 from django.db.models import QuerySet
 from django.http import HttpRequest
-from guardian.shortcuts import get_objects_for_user
+from user_role_management.guardian.shortcuts import get_objects_for_user
 from django.contrib.auth.decorators import login_required, permission_required
 
 
