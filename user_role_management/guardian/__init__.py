@@ -35,7 +35,7 @@ def monkey_patch_user():
 
 def monkey_patch_group():
     from django.contrib.auth.models import Permission
-    from user_role_management.users.models import Company_groups
+    from user_role_management.manage.models import Company_groups
     from .utils import get_group_obj_perms_model
     GroupObjectPermission = get_group_obj_perms_model()
     # Prototype Company_groups methods

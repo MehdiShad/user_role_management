@@ -15,7 +15,7 @@ from django.urls import reverse
 from user_role_management.guardian.admin import GuardedModelAdmin
 from user_role_management.guardian.shortcuts import get_perms
 from user_role_management.guardian.shortcuts import get_perms_for_model
-from user_role_management.users.models import Company_groups
+from user_role_management.manage.models import Company_groups
 from user_role_management.guardian.testapp.tests.conf import skipUnlessTestApp
 from user_role_management.guardian.testapp.models import LogEntryWithGroup as LogEntry
 

@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class UsersConfig(AppConfig):
+class ManageConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'user_role_management.users'
+    name = 'user_role_management.manage'

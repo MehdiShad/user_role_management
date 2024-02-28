@@ -6,7 +6,7 @@ from django.apps import apps as django_apps
 from django.contrib.auth import get_user_model
 from django.contrib.auth.management import create_permissions
 from django.contrib.auth.models import Permission, AnonymousUser
-from user_role_management.users.models import Company_groups
+from user_role_management.manage.models import Company_groups
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 

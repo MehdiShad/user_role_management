@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
-from user_role_management.users.models import Company_groups
+from user_role_management.manage.models import Company_groups
 from django.test import TestCase
 
 from user_role_management.guardian.shortcuts import assign_perm

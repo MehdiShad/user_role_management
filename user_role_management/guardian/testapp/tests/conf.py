@@ -16,7 +16,7 @@ class TestDataMixin:
     def setUp(self):
         super().setUp()
         # from django.contrib.auth.models import Group
-        from user_role_management.users.models import Company_groups
+        from user_role_management.manage.models import Company_groups
         from django.contrib.auth import get_user_model
         User = get_user_model()
         Company_groups.objects.create(pk=1, name='admins')

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from user_role_management.users import models
+from user_role_management.manage import models
 from user_role_management.guardian.admin import GuardedModelAdmin
 from user_role_management.guardian.shortcuts import get_objects_for_user, assign_perm
 

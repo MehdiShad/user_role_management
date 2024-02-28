@@ -1,5 +1,5 @@
 from django.contrib.auth.models import Permission
-from user_role_management.users.models import Company_groups
+from user_role_management.manage.models import Company_groups
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError

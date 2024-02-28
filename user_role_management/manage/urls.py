@@ -1,5 +1,5 @@
 from django.urls import path
-from user_role_management.users.apis import user, process
+from user_role_management.manage.apis.v1 import user, process
 
 
 urlpatterns = [

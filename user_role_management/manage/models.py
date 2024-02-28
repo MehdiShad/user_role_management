@@ -20,7 +20,7 @@ class OrderStatusChoices(models.TextChoices):
 class BaseUserManager(BUM):
     def create_user(self, email, is_active=True, is_admin=False, password=None, is_staff=False):
         if not email:
-            raise ValueError("Users must have an email address")
+            raise ValueError("manage must have an email address")
 
         user = self.model(email=self.normalize_email(email.lower()), is_active=is_active, is_admin=is_admin, is_staff=is_staff)
 

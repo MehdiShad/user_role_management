@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import AnonymousUser
-from user_role_management.users.models import Company_groups
+from user_role_management.manage.models import Company_groups
 from django.db import models
 
 from user_role_management.guardian.testapp.tests.conf import skipUnlessTestApp

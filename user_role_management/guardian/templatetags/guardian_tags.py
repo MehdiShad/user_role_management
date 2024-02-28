@@ -8,7 +8,7 @@
 from django import template
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
-from user_role_management.users.models import Company_groups
+from user_role_management.manage.models import Company_groups
 from user_role_management.guardian.core import ObjectPermissionChecker
 from user_role_management.guardian.exceptions import NotUserNorGroup
 

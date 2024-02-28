@@ -9,7 +9,7 @@ from django.test import TestCase
 
 from user_role_management.guardian.utils import clean_orphan_obj_perms
 from user_role_management.guardian.shortcuts import assign_perm
-from user_role_management.users.models import Company_groups
+from user_role_management.manage.models import Company_groups
 from user_role_management.guardian.testapp.tests.conf import skipUnlessTestApp
 
 

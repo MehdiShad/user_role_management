@@ -4,11 +4,11 @@ from rest_framework.response import Response
 from rest_framework import status, serializers
 from drf_spectacular.utils import extend_schema
 from django.core.validators import MinLengthValidator
-from user_role_management.users.models import BaseUser
+from user_role_management.manage.models import BaseUser
 from user_role_management.api.mixins import ApiAuthMixin
-from user_role_management.users.services import user as user_services
+from user_role_management.manage.services import user as user_services
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
-from user_role_management.users.validators import number_validator, special_char_validator, letter_validator
+from user_role_management.manage.validators import number_validator, special_char_validator, letter_validator
 
 
 class RegisterApi(APIView):

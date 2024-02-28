@@ -207,16 +207,12 @@ U
 +user_role_management/authentication/apps.py,a\0\a026504b07a3a588050d2690ae780b773426f674
 W
 'user_role_management/core/exceptions.py,0\e\0e68e86b202b4da231df8aecd0169cdf4a9a0760
-P
- user_role_management/api/urls.py,c\5\c58307c960cafb0834233a4c07fd4f7eabfefe50
 >
 config/urls.py,4\5\45b243d494ecd78f07818174452843086c64845d
 [
 +user_role_management/authentication/urls.py,7\6\763a9e7ec1c961b51dda42c8702b94283f06210d
 \
 ,user_role_management/authentication/views.py,6\8\68be6e15a2aa89b8f452c9d1e746fc5e0f0862ee
-E
-config/django/base.py,6\0\60644085b2171708e3d6fe56d38d0263bd81a954
 Z
 *user_role_management/users/apis/company.py,5\c\5cd8437fc72ab901c044ea9895515567079a7159
 _
@@ -237,12 +233,6 @@ m
 =user_role_management/guardian/management/commands/__init__.py,2\4\24e5e6467eceb1a019e7cae2cf94e59771fb900b
 d
 4user_role_management/guardian/migrations/__init__.py,6\d\6d5dd7a3de4413648b4e5a7fa68b1614104d6fd4
-^
-.user_role_management/guardian/conf/__init__.py,a\3\a3620a00c4bf48582fe64dad4e225bd8496bab84
-^
-.user_role_management/guardian/conf/settings.py,3\b\3bec2bb1aa5361381ea0aafb6d028b28beb6b965
-{
-Kuser_role_management/guardian/management/commands/clean_orphan_obj_perms.py,8\1\81d1ee49d190dcdf8d83143e761ba68bcd870e40
 d
 4user_role_management/guardian/management/__init__.py,7\c\7c0ae7353f0314c9f6371599379d15dbc67f9efe
 f

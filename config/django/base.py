@@ -16,7 +16,7 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
 LOCAL_APPS = [
     'user_role_management.core.apps.CoreConfig',
     'user_role_management.common.apps.CommonConfig',
-    'user_role_management.users.apps.UsersConfig',
+    'user_role_management.manage.apps.ManageConfig',
     'user_role_management.authentication.apps.AuthenticationConfig',
     'user_role_management.guardian.apps.GuardianConfig',
 ]
@@ -104,7 +104,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-AUTH_USER_MODEL = 'users.BaseUser'
+AUTH_USER_MODEL = 'manage.BaseUser'
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/

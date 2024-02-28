@@ -6,7 +6,7 @@ from django.contrib import admin, messages
 from django.utils.translation import gettext
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
-from user_role_management.users.models import Company_groups
+from user_role_management.manage.models import Company_groups
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.shortcuts import get_object_or_404, redirect, render
 from user_role_management.guardian.models import GroupObjectPermission, UserObjectPermission

@@ -1,6 +1,6 @@
 from django.db import transaction
 from django.http import HttpRequest
-from user_role_management.users.models import BaseUser, Process
+from user_role_management.manage.models import BaseUser, Process
 from user_role_management.core.exceptions import error_response, success_response
 from django.contrib.auth.decorators import login_required, permission_required
 
