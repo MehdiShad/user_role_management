@@ -2,7 +2,7 @@ import django
 from django.conf import global_settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
-from user_role_management.users.models import CompanyGroups
+from user_role_management.users.models import Company_groups
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db.models.base import ModelBase
 from django.http import HttpRequest
@@ -36,7 +36,7 @@ class PermissionRequiredTest(TestDataMixin, TestCase):
         super().setUp()
         self.anon = AnonymousUser()
         self.user = User.objects.get_or_create(username='jack')[0]
-        self.group = CompanyGroups.objects.get_or_create(name='jackGroup')[0]
+        self.group = Company_groups.objects.get_or_create(name='jackGroup')[0]
 
     def _get_request(self, user=None):
         if user is None:

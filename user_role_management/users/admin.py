@@ -10,7 +10,7 @@ class CompanyAdmin(GuardedModelAdmin):
     list_display_links = ['id', 'title']
 
 
-@admin.register(models.CompanyGroups)
+@admin.register(models.Company_groups)
 class BaseGroupAdmin(admin.ModelAdmin):
     list_display = ['id', 'company', 'group']
 
@@ -67,19 +67,19 @@ class DepartmentAdmin(GuardedModelAdmin):
     list_display_links = ['id', 'title']
 
 
-@admin.register(models.Company_departments)
+@admin.register(models.Company_department)
 class CompanyDepartmentsAdmin(GuardedModelAdmin):
     list_display = ['id', 'company', 'department', 'parent_department', 'manager']
     list_display_links = ['id', 'company']
 
 
-@admin.register(models.Company_departments_employees)
-class CompanyDepartmentsEmployeesAdmin(GuardedModelAdmin):
-    list_display = ['id', 'company_departments', 'employee', 'supervisor']
-    list_display_links = ['id', 'company_departments']
+@admin.register(models.Company_department_employee)
+class CompanyDepartmentEmployeesAdmin(GuardedModelAdmin):
+    list_display = ['id', 'company_department', 'employee', 'supervisor']
+    list_display_links = ['id', 'company_department']
 
 
-@admin.register(models.Company_branches)
+@admin.register(models.Company_branch)
 class CompanyBranchesAdmin(GuardedModelAdmin):
     list_display = ['id', 'company', 'branch_title', 'branch_manager']
     list_display_links = ['id', 'company', 'branch_title']
@@ -97,7 +97,19 @@ class ProcessAdmin(GuardedModelAdmin):
     list_display_links = ['id', 'name']
 
 
-@admin.register(models.Route)
-class RouteAdmin(GuardedModelAdmin):
-    list_display = ['id', 'name']
-    list_display_links = ['id', 'name']
+# @admin.register(models.Route)
+# class RouteAdmin(GuardedModelAdmin):
+#     list_display = ['id', 'name']
+#     list_display_links = ['id', 'name']
+
+
+@admin.register(models.Action)
+class ActionAdmin(GuardedModelAdmin):
+    list_display = ['id', 'title', 'process']
+    list_display_links = ['id', 'title']
+
+
+@admin.register(models.Order)
+class OrdersAdmin(GuardedModelAdmin):
+    list_display = ['id', 'customer', 'order_total']
+    list_display_links = ['id', 'customer', 'order_total']

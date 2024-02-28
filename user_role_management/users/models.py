@@ -11,6 +11,12 @@ class UserTypesChoices(models.TextChoices):
     SUPERVISOR = '3', 'supervisor'
 
 
+class OrderStatusChoices(models.TextChoices):
+    SALESQUOTATION = '1', 'Sale quotation'
+    SALEORDER = '2', 'Sale order'
+    INVOICE = '3', 'Invoice'
+
+
 class BaseUserManager(BUM):
     def create_user(self, email, is_active=True, is_admin=False, password=None, is_staff=False):
         if not email:
@@ -43,28 +49,19 @@ class BaseUserManager(BUM):
         return user
 
 
-# class PermissionsMixin(BM):
-#     groups = models.ManyToManyField(
-#         BaseGroup,
-#         verbose_name=_("groups"),
-#         blank=True,
-#         help_text=_(
-#             "The groups this user belongs to. A user will get all permissions "
-#             "granted to each of their groups."
-#         ),
-#         related_name="user_set",
-#         related_query_name="user",
-#     )
-
 class Company(BaseModel):
     title = models.CharField(max_length=155)
     users = models.ManyToManyField('BaseUser')
+
+    class Meta:
+        verbose_name = _("company")
+        verbose_name_plural = _("companies")
 
     def __str__(self):
         return str(self.title)
 
 
-class CompanyGroups(models.Model):
+class Company_groups(models.Model):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     group = models.ForeignKey(Group, on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=255, null=True, blank=True)
@@ -102,7 +99,7 @@ class BaseUser(BaseModel, AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     last_company_logged_in = models.ForeignKey(Company, on_delete=models.DO_NOTHING, null=True, blank=True)
     company_groups = models.ManyToManyField(
-        CompanyGroups,
+        Company_groups,
         verbose_name=_("company_groups"),
         blank=True,
         help_text=_(
@@ -129,6 +126,10 @@ class Assigned_customer(models.Model):
     user = models.ForeignKey(BaseUser, on_delete=models.DO_NOTHING, related_name='user')
     customer = models.ForeignKey(BaseUser, on_delete=models.DO_NOTHING, related_name='customer')
 
+    class Meta:
+        verbose_name = _("assigned customer")
+        verbose_name_plural = _("assigned customers")
+
     def __str__(self):
         return f"{self.user.email}: {self.customer.email}"
 
@@ -139,6 +140,8 @@ class Employee(BaseModel):
     user = models.ForeignKey(BaseUser, on_delete=models.DO_NOTHING)
 
     class Meta:
+        verbose_name = _("employee")
+        verbose_name_plural = _("employees")
         unique_together = [
             ('company', 'user'),
             ('user', 'personnel_code'),
@@ -155,6 +158,10 @@ class Position(models.Model):
     abbreviation = models.CharField(max_length=55, null=True, blank=True)
     employees = models.ManyToManyField(Employee)
 
+    class Meta:
+        verbose_name = _("position")
+        verbose_name_plural = _("Positions")
+
     def __str__(self):
         return str(self.title)
 
@@ -163,42 +170,52 @@ class Department(BaseModel):
     title = models.CharField(max_length=255, unique=True)
     abbreviation = models.CharField(max_length=55, null=True, blank=True)
 
+    class Meta:
+        verbose_name = _("department")
+        verbose_name_plural = _("departments")
+
     def __str__(self):
         return str(self.title)
 
 
-class Company_departments(models.Model):
+class Company_department(models.Model):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     department = models.ForeignKey(Department, on_delete=models.DO_NOTHING, related_name='department')
     parent_department = models.ForeignKey('self', on_delete=models.DO_NOTHING, null=True, blank=True, related_name='parent_company_department')
     manager = models.ForeignKey(Employee, on_delete=models.DO_NOTHING)
 
     class Meta:
+        verbose_name = _("company department")
+        verbose_name_plural = _("company departments")
         unique_together = ['company', 'department']
 
     def __str__(self):
         return f"{self.company.title}-{self.department.title}"
 
 
-class Company_departments_employees(models.Model):
-    company_departments = models.ForeignKey(Company_departments, on_delete=models.DO_NOTHING)
+class Company_department_employee(models.Model):
+    company_department = models.ForeignKey(Company_department, on_delete=models.DO_NOTHING)
     employee = models.ForeignKey(Employee, on_delete=models.DO_NOTHING, related_name='employee')
     supervisor = models.ForeignKey(Employee, on_delete=models.DO_NOTHING, related_name='supervisor')
 
     class Meta:
-        unique_together = ['company_departments', 'employee']
+        verbose_name = _("company department employee")
+        verbose_name_plural = _("company department employees")
+        unique_together = ['company_department', 'employee']
 
     def __str__(self):
-        return f"{self.company_departments}-{self.employee.user.email}"
+        return f"{self.company_department}-{self.employee.user.email}"
 
 
-class Company_branches(BaseModel):
+class Company_branch(BaseModel):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     branch_title = models.CharField(max_length=255)
     branch_manager = models.ForeignKey(Employee, on_delete=models.DO_NOTHING, related_name='branch_manager')
     employees = models.ManyToManyField(Employee)
 
     class Meta:
+        verbose_name = _("company branch")
+        verbose_name_plural = _("company branches")
         unique_together = ['company', 'branch_title']
 
     def __str__(self):
@@ -228,21 +245,35 @@ class Process(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     class Meta:
+        verbose_name = _("process")
+        verbose_name_plural = _("processes")
         unique_together = ['company', 'name']
         permissions = [('dg_can_view_process', 'OBP can view process'), ('dg_can_start_process', 'OBP can start process')]
 
     def __str__(self):
-        return str(self.name)
+        return f"{self.company}_{self.name}"
 
 
-class Route(models.Model):
-    name = models.CharField(max_length=255)
+# class Route(models.Model):
+#     name = models.CharField(max_length=255)
+#
+#     class Meta:
+#         permissions = [('dg_can_get_route', 'OBP can get route'), ('dg_can_post_route', 'OBP can post route')]
+#
+#     def __str__(self):
+#         return str(self.name)
+
+class Action(models.Model):
+    process = models.ForeignKey(Process, on_delete=models.DO_NOTHING)
+    title = models.CharField(max_length=255)
+    route = models.CharField(max_length=355, null=True, blank=True)
 
     class Meta:
-        permissions = [('dg_can_get_route', 'OBP can get route'), ('dg_can_post_route', 'OBP can post route')]
+        unique_together = ['process', 'title']
+        permissions = [('dg_can_do_this_action', 'OBP can do this action')]
 
     def __str__(self):
-        return str(self.name)
+        return f"{self.process}_{self.title}"
 
 
 # class CustomPermission(models.Model):
@@ -250,3 +281,10 @@ class Route(models.Model):
 #     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
 #     groups = models.ForeignKey(Group, on_delete=models.DO_NOTHING)
 
+class Order(BaseModel):
+    order_total = models.IntegerField()
+    customer = models.ForeignKey(BaseUser, on_delete=models.DO_NOTHING)
+    status = models.CharField(max_length=50, choices=OrderStatusChoices.choices, default='2')
+
+    def __str__(self):
+        return f"{self.customer}: {self.order_total}"

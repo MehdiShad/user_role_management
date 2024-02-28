@@ -16,11 +16,11 @@ class TestDataMixin:
     def setUp(self):
         super().setUp()
         # from django.contrib.auth.models import Group
-        from user_role_management.users.models import CompanyGroups
+        from user_role_management.users.models import Company_groups
         from django.contrib.auth import get_user_model
         User = get_user_model()
-        CompanyGroups.objects.create(pk=1, name='admins')
-        jack_group = CompanyGroups.objects.create(pk=2, name='jackGroup')
+        Company_groups.objects.create(pk=1, name='admins')
+        jack_group = Company_groups.objects.create(pk=2, name='jackGroup')
         User.objects.get_or_create(username=guardian_settings.ANONYMOUS_USER_NAME)
         jack = User.objects.create(username='jack', is_active=True,
                                    is_superuser=False, is_staff=False)

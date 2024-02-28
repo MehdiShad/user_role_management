@@ -145,17 +145,17 @@ class UserObjectPermissionsForm(BaseObjectPermissionsForm):
 
 class GroupObjectPermissionsForm(BaseObjectPermissionsForm):
     """
-    Object level permissions management form for usage with ``CompanyGroups`` instances.
+    Object level permissions management form for usage with ``Company_groups`` instances.
 
     Example usage::
 
         from django.shortcuts import get_object_or_404
         from myapp.models import Post
         from guardian.forms import GroupObjectPermissionsForm
-        from guardian.models import CompanyGroups
+        from guardian.models import Company_groups
 
         def my_view(request, post_slug, group_id):
-            group = get_object_or_404(CompanyGroups, id=group_id)
+            group = get_object_or_404(Company_groups, id=group_id)
             post = get_object_or_404(Post, slug=post_slug)
             form = GroupObjectPermissionsForm(group, post, request.POST or None)
             if request.method == 'POST' and form.is_valid():

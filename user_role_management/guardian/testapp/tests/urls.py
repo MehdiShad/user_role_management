@@ -1,10 +1,10 @@
 # handler404 and handler500 are needed for admin tests
 from django.urls import path
-from user_role_management.guardian.compat import handler404, handler500  # pyflakes:ignore
-from user_role_management.guardian.mixins import PermissionRequiredMixin
 from django.contrib import admin
-from django.contrib.auth.views import LoginView
 from django.views.generic import View
+from django.contrib.auth.views import LoginView
+from user_role_management.guardian.mixins import PermissionRequiredMixin
+from user_role_management.guardian.compat import handler404, handler500  # pyflakes:ignore
 
 admin.autodiscover()
 

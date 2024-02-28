@@ -8,7 +8,7 @@
 from django import template
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
-from user_role_management.users.models import CompanyGroups
+from user_role_management.users.models import Company_groups
 from user_role_management.guardian.core import ObjectPermissionChecker
 from user_role_management.guardian.exceptions import NotUserNorGroup
 
@@ -31,7 +31,7 @@ class ObjectPermissionsNode(template.Node):
         elif isinstance(for_whom, AnonymousUser):
             self.user = get_user_model().get_anonymous()
             self.group = None
-        elif isinstance(for_whom, CompanyGroups):
+        elif isinstance(for_whom, Company_groups):
             self.user = None
             self.group = for_whom
         else:

@@ -4,7 +4,7 @@ import unittest
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import AnonymousUser
-from user_role_management.users.models import CompanyGroups
+from user_role_management.users.models import Company_groups
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -87,7 +87,7 @@ class UserPermissionTests(TestDataMixin, TestCase):
                           UserObjectPermission.objects.assign_perm, 'change_group', self.user,
                           self.user)
 
-        group = CompanyGroups.objects.create(name='test_group_assign_perm_validation')
+        group = Company_groups.objects.create(name='test_group_assign_perm_validation')
         ctype = ContentType.objects.get_for_model(group)
         user_ctype = ContentType.objects.get_for_model(self.user)
         codename = get_user_permission_codename('change')
@@ -119,7 +119,7 @@ class GroupPermissionTests(TestDataMixin, TestCase):
     def setUp(self):
         super().setUp()
         self.user = User.objects.get(username='jack')
-        self.group, created = CompanyGroups.objects.get_or_create(name='jackGroup')
+        self.group, created = Company_groups.objects.get_or_create(name='jackGroup')
         self.user.groups.add(self.group)
         self.ctype = ContentType.objects.create(
             model='bar', app_label='fake-for-guardian-tests')
@@ -194,7 +194,7 @@ class GroupPermissionTests(TestDataMixin, TestCase):
                           **create_info)
 
     def test_errors(self):
-        not_saved_group = CompanyGroups(name='not_saved_group')
+        not_saved_group = Company_groups(name='not_saved_group')
         self.assertRaises(ObjectNotPersisted,
                           GroupObjectPermission.objects.assign_perm,
                           "change_group", self.group, not_saved_group)
@@ -237,7 +237,7 @@ class ObjectPermissionBackendTests(TestCase):
                           self.user, "no_app.change_user", self.user)
 
     def test_obj_is_not_model(self):
-        for obj in (CompanyGroups, 666, "String", [2, 1, 5, 7], {}):
+        for obj in (Company_groups, 666, "String", [2, 1, 5, 7], {}):
             self.assertFalse(self.backend.has_perm(self.user,
                                                    "any perm", obj))
 

@@ -9,7 +9,7 @@ from itertools import groupby
 from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
-from user_role_management.users.models import CompanyGroups
+from user_role_management.users.models import Company_groups
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from django.db.models import Count, Q, QuerySet
@@ -44,8 +44,8 @@ def assign_perm(perm, user_or_group, obj=None):
       If ``obj`` is not given, must be in format ``app_label.codename`` or
       ``Permission`` instance.
 
-    :param user_or_group: instance of ``User``, ``AnonymousUser``, ``CompanyGroups``,
-      list of ``User`` or ``CompanyGroups``, or queryset of ``User`` or ``CompanyGroups``;
+    :param user_or_group: instance of ``User``, ``AnonymousUser``, ``Company_groups``,
+      list of ``User`` or ``Company_groups``, or queryset of ``User`` or ``Company_groups``;
       passing any other object would raise
       ``user_role_management.guardian.exceptions.NotUserNorGroup`` exception
 
@@ -67,7 +67,7 @@ def assign_perm(perm, user_or_group, obj=None):
 
     ... or we can assign permission for group:
 
-    >>> group = CompanyGroups.objects.create(name='joe-group')
+    >>> group = Company_groups.objects.create(name='joe-group')
     >>> user.groups.add(group)
     >>> assign_perm("delete_site", group, site)
     <GroupObjectPermission: example.com | joe-group | delete_site>
@@ -152,7 +152,7 @@ def remove_perm(perm, user_or_group=None, obj=None):
       ``app_label.codename`` or ``codename``). If ``obj`` is not given, must
       be in format ``app_label.codename``.
 
-    :param user_or_group: instance of ``User``, ``AnonymousUser`` or ``CompanyGroups``;
+    :param user_or_group: instance of ``User``, ``AnonymousUser`` or ``Company_groups``;
       passing any other object would raise
       ``user_role_management.guardian.exceptions.NotUserNorGroup`` exception
 
@@ -339,30 +339,30 @@ def get_users_with_perms(obj, attach_perms=False, with_superusers=False,
 
 def get_groups_with_perms(obj, attach_perms=False):
     """
-    Returns queryset of all ``CompanyGroups`` objects with *any* object permissions for
+    Returns queryset of all ``Company_groups`` objects with *any* object permissions for
     the given ``obj``.
 
     :param obj: persisted Django's ``Model`` instance
 
     :param attach_perms: Default: ``False``. If set to ``True`` result would be
-      dictionary of ``CompanyGroups`` instances with permissions' codenames list as
+      dictionary of ``Company_groups`` instances with permissions' codenames list as
       values. This would fetch groups eagerly!
 
     Example::
 
         >>> from django.contrib.flatpages.models import FlatPage
         >>> from user_role_management.guardian.shortcuts import assign_perm, get_groups_with_perms
-        >>> from user_role_management.guardian.models import CompanyGroups
+        >>> from user_role_management.guardian.models import Company_groups
         >>>
         >>> page = FlatPage.objects.create(title='Some page', path='/some/page/')
-        >>> admins = CompanyGroups.objects.create(name='Admins')
+        >>> admins = Company_groups.objects.create(name='Admins')
         >>> assign_perm('change_flatpage', admins, page)
         >>>
         >>> get_groups_with_perms(page)
-        [<CompanyGroups: admins>]
+        [<Company_groups: admins>]
         >>>
         >>> get_groups_with_perms(page, attach_perms=True)
-        {<CompanyGroups: admins>: [u'change_flatpage']}
+        {<Company_groups: admins>: [u'change_flatpage']}
 
     """
     ctype = get_content_type(obj)
@@ -378,7 +378,7 @@ def get_groups_with_perms(obj, attach_perms=False):
             }
         else:
             group_filters = {'%s__content_object' % group_rel_name: obj}
-        return CompanyGroups.objects.filter(**group_filters).distinct()
+        return Company_groups.objects.filter(**group_filters).distinct()
     else:
         group_perms_mapping = defaultdict(list)
         groups_with_perms = get_groups_with_perms(obj)
@@ -435,10 +435,10 @@ def get_objects_for_user(user, perms, klass=None, use_groups=True, any_perm=Fals
         >>> get_objects_for_user(joe, 'auth.change_group')
         []
         >>> from user_role_management.guardian.shortcuts import assign_perm
-        >>> group = CompanyGroups.objects.create('some group')
+        >>> group = Company_groups.objects.create('some group')
         >>> assign_perm('auth.change_group', joe, group)
         >>> get_objects_for_user(joe, 'auth.change_group')
-        [<CompanyGroups some group>]
+        [<Company_groups some group>]
 
 
     The permission string can also be an iterable. Continuing with the previous example:
@@ -446,23 +446,23 @@ def get_objects_for_user(user, perms, klass=None, use_groups=True, any_perm=Fals
         >>> get_objects_for_user(joe, ['auth.change_group', 'auth.delete_group'])
         []
         >>> get_objects_for_user(joe, ['auth.change_group', 'auth.delete_group'], any_perm=True)
-        [<CompanyGroups some group>]
+        [<Company_groups some group>]
         >>> assign_perm('auth.delete_group', joe, group)
         >>> get_objects_for_user(joe, ['auth.change_group', 'auth.delete_group'])
-        [<CompanyGroups some group>]
+        [<Company_groups some group>]
 
     Take global permissions into account:
 
         >>> jack = User.objects.get(username='jack')
         >>> assign_perm('auth.change_group', jack) # this will set a global permission
         >>> get_objects_for_user(jack, 'auth.change_group')
-        [<CompanyGroups some group>]
-        >>> group2 = CompanyGroups.objects.create('other group')
+        [<Company_groups some group>]
+        >>> group2 = Company_groups.objects.create('other group')
         >>> assign_perm('auth.delete_group', jack, group2)
         >>> get_objects_for_user(jack, ['auth.change_group', 'auth.delete_group']) # this retrieves intersection
-        [<CompanyGroups other group>]
+        [<Company_groups other group>]
         >>> get_objects_for_user(jack, ['auth.change_group', 'auth.delete_group'], any_perm) # this retrieves union
-        [<CompanyGroups some group>, <CompanyGroups other group>]
+        [<Company_groups some group>, <Company_groups other group>]
 
     If accept_global_perms is set to ``True``, then all assigned global
     permissions will also be taken into account.
@@ -654,7 +654,7 @@ def get_objects_for_group(group, perms, klass=None, any_perm=False, accept_globa
     Returns queryset of objects for which a given ``group`` has *all*
     permissions present at ``perms``.
 
-    :param group: ``CompanyGroups`` instance for which objects would be returned.
+    :param group: ``Company_groups`` instance for which objects would be returned.
     :param perms: single permission string, or sequence of permission strings
       which should be checked.
       If ``klass`` parameter is not given, those should be full permission
@@ -681,7 +681,7 @@ def get_objects_for_group(group, perms, klass=None, any_perm=False, accept_globa
 
         >>> from user_role_management.guardian.shortcuts import get_objects_for_group
         >>> from tasker import Task
-        >>> group = CompanyGroups.objects.create('some group')
+        >>> group = Company_groups.objects.create('some group')
         >>> task = Task.objects.create('some task')
         >>> get_objects_for_group(group, 'tasker.add_task')
         []
