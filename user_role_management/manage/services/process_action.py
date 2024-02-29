@@ -1,8 +1,8 @@
-from django.db import transaction
-from user_role_management.manage.models import BaseUser, Process
+from typing import Dict, Literal
 from django.http import HttpRequest
-from user_role_management.core.exceptions import error_response, success_response
+from user_role_management.manage.models import BaseUser, Process, Action
 from django.contrib.auth.decorators import login_required, permission_required
+from user_role_management.core.exceptions import error_response, success_response
 
 
 @login_required
@@ -21,3 +21,7 @@ def create_process(reqeust: HttpRequest, **kwargs):
         return success_response(data=process)
     except Exception as ex:
         return error_response(message=str(ex))
+
+
+def create_action(*, request: HttpRequest, **kwargs) -> Dict[str, Literal['is_success', True, False]]:
+    return Action._create(**kwargs)
