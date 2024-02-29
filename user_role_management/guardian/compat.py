@@ -2,11 +2,11 @@ from django.conf import settings
 from django.conf.urls import handler404, handler500, include
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser, Permission
-from user_role_management.manage.models import Company_groups
+from user_role_management.manage.models import Company_group
 
 
 __all__ = [
-    'Company_groups',
+    'Company_group',
     'Permission',
     'AnonymousUser',
     'get_user_model',
