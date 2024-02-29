@@ -32,8 +32,8 @@ def get_paginated_response_context(*, pagination_class, serializer_class, querys
 
 
 class LimitOffsetPagination(_LimitOffsetPagination):
-    default_limit = 10
-    max_limit = 50
+    default_limit = 25
+    max_limit = 500
 
     def get_paginated_data(self, data):
         return OrderedDict([
@@ -42,7 +42,7 @@ class LimitOffsetPagination(_LimitOffsetPagination):
             ('count', self.count),
             ('next', self.get_next_link()),
             ('previous', self.get_previous_link()),
-            ('results', data)
+            ('data', data)
         ])
 
     def get_paginated_response(self, data):
@@ -56,5 +56,5 @@ class LimitOffsetPagination(_LimitOffsetPagination):
             ('count', self.count),
             ('next', self.get_next_link()),
             ('previous', self.get_previous_link()),
-            ('results', data)
+            ('data', data)
         ]))
