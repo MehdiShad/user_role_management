@@ -1,3 +1,4 @@
+from typing import Dict, Literal
 from django.db import transaction
 from django.http import HttpRequest
 from user_role_management.manage.models import BaseUser, Process
@@ -13,3 +14,7 @@ def create_user(*, email: str, password: str) -> BaseUser:
 def register(*, email: str, password: str) -> BaseUser:
     user = create_user(email=email, password=password)
     return user
+
+
+def update_user(*, request: HttpRequest, id: int, **kwargs) -> Dict[str, Literal['is_success', True, False]]:
+    return BaseUser._update(id=id, **kwargs)

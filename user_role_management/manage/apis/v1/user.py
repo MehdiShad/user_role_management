@@ -7,8 +7,11 @@ from django.core.validators import MinLengthValidator
 from user_role_management.manage.models import BaseUser
 from user_role_management.api.mixins import ApiAuthMixin
 from user_role_management.manage.services import user as user_services
+from user_role_management.manage.selectors import user as user_selector
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
+from user_role_management.api.pagination import LimitOffsetPagination, get_paginated_response_context
 from user_role_management.manage.validators import number_validator, special_char_validator, letter_validator
+from user_role_management.core.exceptions import handle_validation_error, error_response, success_response
 
 
 class RegisterApi(APIView):
@@ -72,6 +75,98 @@ class RegisterApi(APIView):
             )
         return Response(self.OutPutRegisterSerializer(user, context={"request": request}).data)
 
+
+#==============================================================
+
+class OutPutUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BaseUser
+        fields = '__all__'
+
+
+class CustomUserSingleResponseSerializer(serializers.Serializer):
+    is_success = serializers.BooleanField(default=True)
+    data = OutPutUserSerializer()
+
+    class Meta:
+        fields = ('is_success', 'data')
+
+
+class CustomUserMultiResponseSerializer(serializers.Serializer):
+    is_success = serializers.BooleanField(default=True)
+    limit = serializers.IntegerField()
+    offset = serializers.IntegerField()
+    count = serializers.IntegerField()
+    next = serializers.CharField()
+    previous = serializers.CharField()
+    data = serializers.ListSerializer(child=OutPutUserSerializer())
+
+    class Meta:
+        fields = ('is_success', 'data')
+
+
+class UsersApi(APIView):
+    class Pagination(LimitOffsetPagination):
+        default_limit = 50
+
+    class InputUserSerializer(serializers.Serializer):
+        first_name = serializers.CharField(max_length=155)
+
+    class FilterUserSerializer(serializers.Serializer):
+        first_name = serializers.CharField(max_length=155, required=False)
+
+    @extend_schema(parameters=[FilterUserSerializer], responses=CustomUserMultiResponseSerializer,
+                   tags=['User'])
+    def get(self, request: HttpRequest):
+        filter_serializer = self.FilterUserSerializer(data=request.query_params)
+        validation_result = handle_validation_error(serializer=filter_serializer)
+        if not isinstance(validation_result, bool):  # if validation_result response is not boolean
+            return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            companies = user_selector.get_users(request, **filter_serializer.validated_data)
+            return get_paginated_response_context(
+                request=request,
+                pagination_class=self.Pagination,
+                serializer_class=OutPutUserSerializer,
+                queryset=companies,
+                view=self,
+            )
+        except Exception as ex:
+            response = error_response(message=str(ex))
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserApi(APIView):
+    class UpdateUserSerializer(UsersApi.InputUserSerializer):
+        pass
+
+    @extend_schema(responses=CustomUserSingleResponseSerializer, tags=['User'])
+    def get(self, request: HttpRequest, user_id: int):
+        try:
+            user = user_selector.get_user(request=request, id=user_id)
+            if not user['is_success']:
+                raise Exception(user['message'])
+            return Response(CustomUserSingleResponseSerializer(user, context={"request": request}).data)
+        except Exception as ex:
+            response = error_response(message=str(ex))
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(request=UpdateUserSerializer, responses=CustomUserSingleResponseSerializer, tags=['BaseUser'])
+    def put(self, request: HttpRequest, user_id: int):
+        serializer = self.UpdateUserSerializer(data=request.data)
+        validation_result = handle_validation_error(serializer=serializer)
+        if not isinstance(validation_result, bool):
+            return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = user_services.update_user(request=request, id=user_id, **serializer.validated_data)
+            if not user['is_success']:
+                raise Exception(user['message'])
+            return Response(CustomUserSingleResponseSerializer(user, context={"request": request}).data)
+        except Exception as ex:
+            response = error_response(message=str(ex))
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
 class AssignPermission(APIView):
     pass

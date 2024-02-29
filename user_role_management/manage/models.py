@@ -153,6 +153,38 @@ class BaseUser(BaseModel, AbstractBaseUser, PermissionsMixin):
         verbose_name = _("user")
         verbose_name_plural = _("users")
 
+    @classmethod
+    def _create(cls, **kwargs: Dict[str, Any]) -> Dict[str, Literal['is_success', True, False]]:
+        try:
+            fields = create_fields(**kwargs)
+            new = cls.objects.create(**fields)
+            return success_response(data=new)
+        except Exception as ex:
+            return error_response(message=str(ex))
+
+    @classmethod
+    def _update(cls, id: int, **kwargs) -> Dict[str, Literal['is_success', True, False]]:
+        try:
+            obj = cls.objects.get(id=id)
+            fields = create_fields(**kwargs)
+            obj.__dict__.update(**fields)
+            obj.save()
+            return success_response(data=obj)
+        except Exception as ex:
+            return error_response(message=str(ex))
+
+    @classmethod
+    def _get_all(cls) -> QuerySet['BaseUser']:
+        return cls.objects.all()
+
+    @classmethod
+    def _get_by_id(cls, id: int) -> Optional['BaseUser']:
+        try:
+            return cls.objects.get(id=id)
+        except:
+            return None
+
+
     def __str__(self):
         return self.email
 
@@ -400,11 +432,11 @@ class Process(models.Model):
             return error_response(message=str(ex))
 
     @classmethod
-    def _get_all(cls) -> QuerySet['Company']:
+    def _get_all(cls) -> QuerySet['Process']:
         return cls.objects.all()
 
     @classmethod
-    def _get_by_id(cls, id: int) -> Optional['Comapny']:
+    def _get_by_id(cls, id: int) -> Optional['Process']:
         try:
             return cls.objects.get(id=id)
         except:
@@ -444,11 +476,11 @@ class Action(models.Model):
             return error_response(message=str(ex))
 
     @classmethod
-    def _get_all(cls) -> QuerySet['Company']:
+    def _get_all(cls) -> QuerySet['Action']:
         return cls.objects.all()
 
     @classmethod
-    def _get_by_id(cls, id: int) -> Optional['Comapny']:
+    def _get_by_id(cls, id: int) -> Optional['Action']:
         try:
             return cls.objects.get(id=id)
         except:

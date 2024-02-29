@@ -98,18 +98,18 @@ class UserObjectPermission(UserObjectPermissionAbstract):
             return error_response(message=str(ex))
 
     @classmethod
-    def _get_all(cls) -> QuerySet['Company']:
+    def _get_all(cls) -> QuerySet['UserObjectPermission']:
         return cls.objects.all()
 
     @classmethod
-    def _get_by_id(cls, id: int) -> Optional['Comapny']:
+    def _get_by_id(cls, id: int) -> Optional['UserObjectPermission']:
         try:
             return cls.objects.get(id=id)
         except:
             return None
 
-    def __str__(self):
-        return f"{self.process}_{self.title}"
+    # def __str__(self):
+    #     return f"{self.process}_{self.title}"
 
 
 class GroupObjectPermissionBase(BaseObjectPermission):
@@ -157,15 +157,15 @@ class GroupObjectPermission(GroupObjectPermissionAbstract):
             return error_response(message=str(ex))
 
     @classmethod
-    def _get_all(cls) -> QuerySet['Company']:
+    def _get_all(cls) -> QuerySet['GroupObjectPermission']:
         return cls.objects.all()
 
     @classmethod
-    def _get_by_id(cls, id: int) -> Optional['Comapny']:
+    def _get_by_id(cls, id: int) -> Optional['GroupObjectPermission']:
         try:
             return cls.objects.get(id=id)
         except:
             return None
 
-    def __str__(self):
-        return f"{self.process}_{self.title}"
+    # def __str__(self):
+    #     return f"{self.process}_{self.title}"

@@ -19,9 +19,11 @@ urlpatterns = [
     path('process/<int:process_id>', process_action.ProcessApi.as_view(), name="process"),
 
     path('action/', process_action.ActionsApi.as_view(), name="actions"),
-    path('action/<int:action_id>', process_action.ActionApi.as_view(), name="actions"),
+    path('action/<int:action_id>', process_action.ActionApi.as_view(), name="action"),
 
-    path('register/', user.RegisterApi.as_view(), name="register"),
+    path('user/register/', user.RegisterApi.as_view(), name="register"),
+    path('user/', user.UsersApi.as_view(), name="users"),
+    path('user/<int:user_id>', user.UserApi.as_view(), name="user"),
     # path('processes/', process_action.ProcessApi.as_view(), name="processes"),
 
 ]
