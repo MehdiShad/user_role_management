@@ -55,7 +55,9 @@ class CompaniesApi(APIView):
         if not isinstance(validation_result, bool):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
         try:
-            company = company_service.create_company(request, **serializer.validated_data)
+            company = company_service.create_company(request=request, **serializer.validated_data)
+            if not company['is_success']:
+                raise Exception(company['message'])
             return Response(CustomCompanySingleResponseSerializer(company, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
@@ -91,6 +93,8 @@ class CompanyApi(APIView):
     def get(self, request: HttpRequest, company_id: int):
         try:
             company = company_selector.get_company(request=request, id=company_id)
+            if not company['is_success']:
+                raise Exception(company['message'])
             return Response(CustomCompanySingleResponseSerializer(company, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
@@ -104,7 +108,9 @@ class CompanyApi(APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            company = company_service.update_company(request=request, id=company_id)
+            company = company_service.update_company(request=request, id=company_id, **serializer.validated_data)
+            if not company['is_success']:
+                raise Exception(company['message'])
             return Response(CustomCompanySingleResponseSerializer(company, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))

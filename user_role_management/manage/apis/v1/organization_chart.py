@@ -11,7 +11,6 @@ from user_role_management.api.pagination import LimitOffsetPagination, get_pagin
 from user_role_management.core.exceptions import handle_validation_error, error_response, success_response
 
 
-
 class OutPutEmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Employee
@@ -58,6 +57,8 @@ class EmployeesApi(APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
         try:
             employee = organization_chart_service.create_employee(request, **serializer.validated_data)
+            if not employee['is_success']:
+                raise Exception(employee['message'])
             return Response(CustomEmployeeSingleResponseSerializer(employee, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
@@ -94,7 +95,9 @@ class EmployeeApi(APIView):
     def get(self, request: HttpRequest, employee_id: int):
         try:
             employee = organization_chart_selector.get_employee(request=request, id=employee_id)
-            return Response(CustomEmployeeSingleResponseSerializer(success_response(data=employee), context={"request": request}).data)
+            if not employee['is_success']:
+                raise Exception(employee['message'])
+            return Response(CustomEmployeeSingleResponseSerializer(employee, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
@@ -107,7 +110,9 @@ class EmployeeApi(APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            employee = organization_chart_service.update_employee(request=request, id=employee_id)
+            employee = organization_chart_service.update_employee(request=request, id=employee_id, **serializer.validated_data)
+            if not employee['is_success']:
+                raise Exception(employee['message'])
             return Response(CustomEmployeeSingleResponseSerializer(employee, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
@@ -166,6 +171,8 @@ class PositionsApi(APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
         try:
             position = organization_chart_service.create_position(request, **serializer.validated_data)
+            if not position['is_success']:
+                raise Exception(position['message'])
             return Response(CustomPositionSingleResponseSerializer(position, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
@@ -202,6 +209,8 @@ class PositionApi(APIView):
     def get(self, request: HttpRequest, position_id: int):
         try:
             position = organization_chart_selector.get_position(request=request, id=position_id)
+            if not position['is_success']:
+                raise Exception(position['message'])
             return Response(CustomPositionSingleResponseSerializer(success_response(data=position), context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
@@ -215,15 +224,13 @@ class PositionApi(APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            position = organization_chart_service.update_position(request=request, id=company_id)
+            position = organization_chart_service.update_position(request=request, id=company_id, **serializer.validated_data)
+            if not position['is_success']:
+                raise Exception(position['message'])
             return Response(CustomPositionSingleResponseSerializer(position, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-
 
 
 class OutPutDepartmentSerializer(serializers.ModelSerializer):
@@ -272,13 +279,14 @@ class DepartmentsApi(APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
         try:
             department = organization_chart_service.create_department(request, **serializer.validated_data)
+            if not department['is_success']:
+                raise Exception(department['message'])
             return Response(CustomDepartmentSingleResponseSerializer(department, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
-    @extend_schema(parameters=[FilterDepartmentSerializer], responses=CustomDepartmentMultiResponseSerializer,
-                   tags=['Department'])
+    @extend_schema(parameters=[FilterDepartmentSerializer], responses=CustomDepartmentMultiResponseSerializer, tags=['Department'])
     def get(self, request: HttpRequest):
         filter_serializer = self.FilterDepartmentSerializer(data=request.query_params)
         validation_result = handle_validation_error(serializer=filter_serializer)
@@ -309,6 +317,8 @@ class DepartmentApi(APIView):
     def get(self, request: HttpRequest, department_id: int):
         try:
             department = organization_chart_selector.get_department(request=request, id=department_id)
+            if not department['is_success']:
+                raise Exception(department['message'])
             return Response(CustomDepartmentSingleResponseSerializer(success_response(data=department), context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
@@ -322,7 +332,9 @@ class DepartmentApi(APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            department = organization_chart_service.update_department(request=request, id=department_id)
+            department = organization_chart_service.update_department(request=request, id=department_id, **serializer.validated_data)
+            if not department['is_success']:
+                raise Exception(department['message'])
             return Response(CustomDepartmentSingleResponseSerializer(department, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))

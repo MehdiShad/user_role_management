@@ -57,6 +57,8 @@ class ProcessesApi(APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
         try:
             process = process_action_services.create_process(request, **serializer.validated_data)
+            if not process['is_success']:
+                raise Exception(process['message'])
             return Response(CustomProcessSingleResponseSerializer(process, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
@@ -92,6 +94,8 @@ class ProcessApi(APIView):
     def get(self, request: HttpRequest, process_id: int):
         try:
             process = process_action_selector.get_process(request=request, id=process_id)
+            if not process['is_success']:
+                raise Exception(process['message'])
             return Response(CustomProcessSingleResponseSerializer(process, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
@@ -105,7 +109,9 @@ class ProcessApi(APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            process = process_action_services.update_process(request=request, id=process_id)
+            process = process_action_services.update_process(request=request, id=process_id, **serializer.validated_data)
+            if not process['is_success']:
+                raise Exception(process['message'])
             return Response(CustomProcessSingleResponseSerializer(process, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
@@ -160,6 +166,8 @@ class ActionsApi(APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
         try:
             action = process_action_services.create_action(request, **serializer.validated_data)
+            if not action['is_success']:
+                raise Exception(action['message'])
             return Response(CustomActionSingleResponseSerializer(action, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
@@ -195,6 +203,8 @@ class ActionApi(APIView):
     def get(self, request: HttpRequest, action_id: int):
         try:
             action = process_action_selector.get_action(request=request, id=action_id)
+            if not action['is_success']:
+                raise Exception(action['message'])
             return Response(CustomActionSingleResponseSerializer(action, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
@@ -210,7 +220,9 @@ class ActionApi(APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            action = process_action_services.update_action(request=request, id=action_id)
+            action = process_action_services.update_action(request=request, id=action_id, **serializer.validated_data)
+            if not action['is_success']:
+                raise Exception(action['message'])
             return Response(CustomActionSingleResponseSerializer(action, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))

@@ -56,6 +56,8 @@ class UserObjectPermissionsApi(APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
         try:
             user_object_permission = permission_services.create_user_object_permission(request, **serializer.validated_data)
+            if not user_object_permission['is_success']:
+                raise Exception(user_object_permission['message'])
             return Response(CustomUserObjectPermissionSingleResponseSerializer(user_object_permission, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
@@ -91,6 +93,8 @@ class UserObjectPermissionApi(APIView):
     def get(self, request: HttpRequest, user_object_permission_id: int):
         try:
             user_object_permission = permission_selector.get_user_object_permission(request=request, id=user_object_permission_id)
+            if not user_object_permission['is_success']:
+                raise Exception(user_object_permission['message'])
             return Response(CustomUserObjectPermissionSingleResponseSerializer(user_object_permission, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
@@ -104,7 +108,9 @@ class UserObjectPermissionApi(APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            user_object_permission = permission_services.update_user_object_permission(request=request, id=user_object_permission_id)
+            user_object_permission = permission_services.update_user_object_permission(request=request, id=user_object_permission_id, **serializer.validated_data)
+            if not user_object_permission['is_success']:
+                raise Exception(user_object_permission['message'])
             return Response(CustomUserObjectPermissionSingleResponseSerializer(user_object_permission, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
@@ -163,6 +169,8 @@ class GroupObjectPermissionsApi(APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
         try:
             group_object_permission = permission_services.create_group_object_permission(request, **serializer.validated_data)
+            if not group_object_permission['is_success']:
+                raise Exception(group_object_permission['message'])
             return Response(CustomGroupObjectPermissionSingleResponseSerializer(group_object_permission, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
@@ -198,6 +206,8 @@ class GroupObjectPermissionApi(APIView):
     def get(self, request: HttpRequest, group_object_permission_id: int):
         try:
             group_object_permission = permission_selector.get_group_object_permission(request=request, id=group_object_permission_id)
+            if not group_object_permission['is_success']:
+                raise Exception(group_object_permission['message'])
             return Response(CustomGroupObjectPermissionSingleResponseSerializer(group_object_permission, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
@@ -211,7 +221,9 @@ class GroupObjectPermissionApi(APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            group_object_permission = permission_services.update_group_object_permission(request=request, id=group_object_permission_id)
+            group_object_permission = permission_services.update_group_object_permission(request=request, id=group_object_permission_id, **serializer.validated_data)
+            if not group_object_permission['is_success']:
+                raise Exception(group_object_permission['message'])
             return Response(CustomGroupObjectPermissionSingleResponseSerializer(group_object_permission, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))

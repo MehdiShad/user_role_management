@@ -265,8 +265,6 @@ W
 'user_role_management/manage/__init__.py,b\0\b0f8d7e4ad4ade479bbdc8ac2a29059de06b93c3
 c
 3user_role_management/guardian/testapp/tests/conf.py,7\3\73af21b4f9796a2faac7551ad4a910fa2df48f4b
-[
-+user_role_management/manage/apis/v1/user.py,e\6\e63e591707ea8b1f0d39a78efe86251f6e8c69b5
 Y
 )user_role_management/guardian/__init__.py,3\c\3c01701bc0b95615877e3cd1844b39ee256e3cb1
 _
@@ -285,8 +283,6 @@ i
 9user_role_management/guardian/testapp/tests/test_admin.py,0\7\073e6589e3d62d38312b5361199b8c4d9816b8d0
 i
 9user_role_management/guardian/testapp/tests/test_utils.py,5\6\5606f0652e0a8821a960ac45bba0ff23478f3719
-\
-,user_role_management/manage/services/user.py,4\5\452bcf949c0e5f50c38a0c66b8fb7639803f1285
 i
 9user_role_management/guardian/testapp/tests/test_other.py,8\a\8a5d353768cc420de6295fe419b0e936972b1016
 k
