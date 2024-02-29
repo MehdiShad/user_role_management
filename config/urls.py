@@ -13,11 +13,10 @@ from drf_spectacular.settings import spectacular_settings
 urlpatterns = [
 
     path('admin/', admin.site.urls),
-    path('api/', include(('user_role_management.api.urls', 'api'))),
+    path('api/v1/', include(('user_role_management.api.urls', 'api'))),
 ]
 
 if settings.DEBUG:
-
     spectacular_settings.SWAGGER_UI_SETTINGS = {
         'deepLinking': True,
         'docExpansion': 'none',
