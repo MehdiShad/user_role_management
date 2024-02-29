@@ -1,9 +1,10 @@
 from django.db import models
 from django.db.models import QuerySet
 from typing import Dict, Any, Optional, Literal
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from user_role_management.common.models import BaseModel
-from user_role_management.utils.model_handler import create_fields
+from user_role_management.utils.services import create_fields
 from user_role_management.core.exceptions import error_response, success_response
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager as BUM, PermissionsMixin, Group, GroupManager, \
     Permission
@@ -13,6 +14,18 @@ class UserTypesChoices(models.TextChoices):
     STAFF = '1', 'staff'
     CUSTOMER = '2', 'customer'
     SUPERVISOR = '3', 'supervisor'
+
+
+def validate_user_type(value):
+    if value not in [choice[0] for choice in UserTypesChoices.choices]:
+        raise ValidationError(f"'{value}' is not a valid user type")
+
+def validate_last_company_logged_in(value):
+    """
+        Verify matching users and companies.
+    """
+    # TODO: Verify matching users and companies.
+    pass
 
 
 class OrderStatusChoices(models.TextChoices):
@@ -56,7 +69,7 @@ class BaseUserManager(BUM):
 
 class Company(BaseModel):
     title = models.CharField(max_length=155, unique=True)
-    users = models.ManyToManyField('BaseUser')
+    # users = models.ManyToManyField('BaseUser', related_name='users')
 
     class Meta:
         verbose_name = _("company")
@@ -97,7 +110,7 @@ class Company(BaseModel):
         return str(self.title)
 
 
-class Company_groups(models.Model):
+class Company_group(models.Model):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     group = models.ForeignKey(Group, on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=255, null=True, blank=True)
@@ -112,11 +125,42 @@ class Company_groups(models.Model):
         verbose_name = _("company group")
         verbose_name_plural = _("company groups")
 
+    @classmethod
+    def _create(cls, **kwargs: Dict[str, Any]) -> Dict[str, Literal['is_success', True, False]]:
+        try:
+            fields = create_fields(**kwargs)
+            new = cls.objects.create(**fields)
+            return success_response(data=new)
+        except Exception as ex:
+            return error_response(message=str(ex))
+
+    @classmethod
+    def _update(cls, id: int, **kwargs) -> Dict[str, Literal['is_success', True, False]]:
+        try:
+            obj = cls.objects.get(id=id)
+            fields = create_fields(**kwargs)
+            obj.__dict__.update(**fields)
+            obj.save()
+            return success_response(data=obj)
+        except Exception as ex:
+            return error_response(message=str(ex))
+
+    @classmethod
+    def _get_all(cls) -> QuerySet['Company_group']:
+        return cls.objects.all()
+
+    @classmethod
+    def _get_by_id(cls, id: int) -> Optional['Company_group']:
+        try:
+            return cls.objects.get(id=id)
+        except:
+            return None
+
     def __str__(self):
         return f"{self.company} - {self.group}"
 
     def save(self, *args, **kwargs):
-        self.name = self.name if self.name else f"{self.company.title}_{self.group.name}"
+        self.name = f"{self.company.title}_{self.group.name}"
 
         super().save(*args, **kwargs)
 
@@ -130,20 +174,21 @@ class BaseUser(BaseModel, AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=255, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-    type = models.CharField(max_length=50, choices=UserTypesChoices.choices, default='2')
+    type = models.CharField(max_length=2, choices=UserTypesChoices.choices, validators=[validate_user_type])
     is_staff = models.BooleanField(default=False)
-    last_company_logged_in = models.ForeignKey(Company, on_delete=models.DO_NOTHING, null=True, blank=True)
+    last_company_logged_in = models.ForeignKey(Company, on_delete=models.DO_NOTHING, null=True, blank=True, validators=[validate_last_company_logged_in])
     company_groups = models.ManyToManyField(
-        Company_groups,
+        Company_group,
         verbose_name=_("company_groups"),
         blank=True,
         help_text=_(
-            "The company_groups this user belongs to. A user will get all permissions "
-            "granted to each of their company_groups."
+            "The company_group this user belongs to. A user will get all permissions "
+            "granted to each of their company_group."
         ),
         related_name="base_user_set",
         related_query_name="base_user",
     )
+    companies = models.ManyToManyField('Company', related_name='companies')
 
     objects = BaseUserManager()
 
@@ -168,8 +213,11 @@ class BaseUser(BaseModel, AbstractBaseUser, PermissionsMixin):
             obj = cls.objects.get(id=id)
             fields = create_fields(**kwargs)
             obj.__dict__.update(**fields)
+            obj.full_clean()
             obj.save()
             return success_response(data=obj)
+        # except ValidationError as ve:
+        #     sdf = ''
         except Exception as ex:
             return error_response(message=str(ex))
 
@@ -201,10 +249,54 @@ class Assigned_customer(models.Model):
         return f"{self.user.email}: {self.customer.email}"
 
 
+class Position(models.Model):
+    title = models.CharField(max_length=255, unique=True)
+    abbreviation = models.CharField(max_length=55, null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("position")
+        verbose_name_plural = _("Positions")
+
+    @classmethod
+    def _create(cls, **kwargs: Dict[str, Any]) -> Dict[str, Literal['is_success', True, False]]:
+        try:
+            fields = create_fields(**kwargs)
+            new = cls.objects.create(**fields)
+            return success_response(data=new)
+        except Exception as ex:
+            return error_response(message=str(ex))
+
+    @classmethod
+    def _update(cls, id: int, **kwargs) -> Dict[str, Literal['is_success', True, False]]:
+        try:
+            obj = cls.objects.get(id=id)
+            fields = create_fields(**kwargs)
+            obj.__dict__.update(**fields)
+            obj.save()
+            return success_response(data=obj)
+        except Exception as ex:
+            return error_response(message=str(ex))
+
+    @classmethod
+    def _get_all(cls) -> QuerySet['Position']:
+        return cls.objects.all()
+
+    @classmethod
+    def _get_by_id(cls, id: int) -> Optional['Position']:
+        try:
+            return cls.objects.get(id=id)
+        except:
+            return None
+
+    def __str__(self):
+        return str(self.title)
+
+
 class Employee(BaseModel):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     personnel_code = models.CharField(max_length=15)
     user = models.ForeignKey(BaseUser, on_delete=models.DO_NOTHING)
+    positions = models.ManyToManyField(Position)
 
     class Meta:
         verbose_name = _("employee")
@@ -251,48 +343,7 @@ class Employee(BaseModel):
         return f"{self.company.title}-{self.user.email}"
 
 
-class Position(models.Model):
-    title = models.CharField(max_length=255, unique=True)
-    abbreviation = models.CharField(max_length=55, null=True, blank=True)
-    employees = models.ManyToManyField(Employee)
 
-    class Meta:
-        verbose_name = _("position")
-        verbose_name_plural = _("Positions")
-
-    @classmethod
-    def _create(cls, **kwargs: Dict[str, Any]) -> Dict[str, Literal['is_success', True, False]]:
-        try:
-            fields = create_fields(**kwargs)
-            new = cls.objects.create(**fields)
-            return success_response(data=new)
-        except Exception as ex:
-            return error_response(message=str(ex))
-
-    @classmethod
-    def _update(cls, id: int, **kwargs) -> Dict[str, Literal['is_success', True, False]]:
-        try:
-            obj = cls.objects.get(id=id)
-            fields = create_fields(**kwargs)
-            obj.__dict__.update(**fields)
-            obj.save()
-            return success_response(data=obj)
-        except Exception as ex:
-            return error_response(message=str(ex))
-
-    @classmethod
-    def _get_all(cls) -> QuerySet['Position']:
-        return cls.objects.all()
-
-    @classmethod
-    def _get_by_id(cls, id: int) -> Optional['Position']:
-        try:
-            return cls.objects.get(id=id)
-        except:
-            return None
-
-    def __str__(self):
-        return str(self.title)
 
 
 class Department(BaseModel):
@@ -350,6 +401,38 @@ class Company_department(models.Model):
         verbose_name = _("company department")
         verbose_name_plural = _("company departments")
 
+    @classmethod
+    def _create(cls, **kwargs: Dict[str, Any]) -> Dict[str, Literal['is_success', True, False]]:
+        try:
+            fields = create_fields(**kwargs)
+            new = cls.objects.create(**fields)
+            return success_response(data=new)
+        except Exception as ex:
+            return error_response(message=str(ex))
+
+    @classmethod
+    def _update(cls, id: int, **kwargs) -> Dict[str, Literal['is_success', True, False]]:
+        try:
+            obj = cls.objects.get(id=id)
+            fields = create_fields(**kwargs)
+            obj.__dict__.update(**fields)
+            obj.save()
+            return success_response(data=obj)
+        except Exception as ex:
+            return error_response(message=str(ex))
+
+    @classmethod
+    def _get_all(cls) -> QuerySet['Department']:
+        return cls.objects.all()
+
+    @classmethod
+    def _get_by_id(cls, id: int) -> Optional['Department']:
+        try:
+            return cls.objects.get(id=id)
+        except:
+            return None
+
+
     def __str__(self):
         return f"{self.company.title}-{self.department.title}"
 
@@ -363,6 +446,43 @@ class Company_department_employee(models.Model):
         verbose_name = _("company department employee")
         verbose_name_plural = _("company department employees")
         unique_together = ['company_department', 'employee']
+
+
+    @classmethod
+    def _create(cls, **kwargs: Dict[str, Any]) -> Dict[str, Literal['is_success', True, False]]:
+        try:
+            fields = create_fields(**kwargs)
+            new = cls.objects.create(**fields)
+            # TODO: Hanle django.db.utils.IntegrityError: insert or update on table "manage_company_department_employee" violates foreign key constraint "manage_company_depar_employee_id_c569378a_fk_manage_em"
+            # DETAIL:  Key (employee_id)=(8) is not present in table "manage_employee".
+            new.full_clean()
+            response = success_response(data=new)
+            return response
+        except Exception as ex:
+            return error_response(message=str(ex))
+
+    @classmethod
+    def _update(cls, id: int, **kwargs) -> Dict[str, Literal['is_success', True, False]]:
+        try:
+            obj = cls.objects.get(id=id)
+            fields = create_fields(**kwargs)
+            obj.__dict__.update(**fields)
+            obj.save()
+            return success_response(data=obj)
+        except Exception as ex:
+            return error_response(message=str(ex))
+
+    @classmethod
+    def _get_all(cls) -> QuerySet['Department']:
+        return cls.objects.all()
+
+    @classmethod
+    def _get_by_id(cls, id: int) -> Optional['Department']:
+        try:
+            return cls.objects.get(id=id)
+        except:
+            return None
+
 
     def __str__(self):
         return f"{self.company_department}-{self.employee.user.email}"
@@ -379,6 +499,38 @@ class Company_branch(BaseModel):
         verbose_name_plural = _("company branches")
         unique_together = ['company', 'branch_title']
 
+
+    @classmethod
+    def _create(cls, **kwargs: Dict[str, Any]) -> Dict[str, Literal['is_success', True, False]]:
+        try:
+            fields = create_fields(**kwargs)
+            new = cls.objects.create(**fields)
+            return success_response(data=new)
+        except Exception as ex:
+            return error_response(message=str(ex))
+
+    @classmethod
+    def _update(cls, id: int, **kwargs) -> Dict[str, Literal['is_success', True, False]]:
+        try:
+            obj = cls.objects.get(id=id)
+            fields = create_fields(**kwargs)
+            obj.__dict__.update(**fields)
+            obj.save()
+            return success_response(data=obj)
+        except Exception as ex:
+            return error_response(message=str(ex))
+
+    @classmethod
+    def _get_all(cls) -> QuerySet['Department']:
+        return cls.objects.all()
+
+    @classmethod
+    def _get_by_id(cls, id: int) -> Optional['Department']:
+        try:
+            return cls.objects.get(id=id)
+        except:
+            return None
+
     def __str__(self):
         return f"{self.company.title}-{self.branch_title}"
 
@@ -393,6 +545,38 @@ class Shift(BaseModel):
 
     class Meta:
         unique_together = ['started_at', 'ended_at']
+
+
+    @classmethod
+    def _create(cls, **kwargs: Dict[str, Any]) -> Dict[str, Literal['is_success', True, False]]:
+        try:
+            fields = create_fields(**kwargs)
+            new = cls.objects.create(**fields)
+            return success_response(data=new)
+        except Exception as ex:
+            return error_response(message=str(ex))
+
+    @classmethod
+    def _update(cls, id: int, **kwargs) -> Dict[str, Literal['is_success', True, False]]:
+        try:
+            obj = cls.objects.get(id=id)
+            fields = create_fields(**kwargs)
+            obj.__dict__.update(**fields)
+            obj.save()
+            return success_response(data=obj)
+        except Exception as ex:
+            return error_response(message=str(ex))
+
+    @classmethod
+    def _get_all(cls) -> QuerySet['Department']:
+        return cls.objects.all()
+
+    @classmethod
+    def _get_by_id(cls, id: int) -> Optional['Department']:
+        try:
+            return cls.objects.get(id=id)
+        except:
+            return None
 
     def __str__(self):
         return f"{self.started_at}-{self.ended_at}"

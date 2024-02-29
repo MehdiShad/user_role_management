@@ -5,11 +5,11 @@ from django.contrib.auth.models import Permission
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
-from user_role_management.manage.models import Company_groups
+from user_role_management.manage.models import Company_group
+from user_role_management.utils.services import create_fields
 from django.contrib.contenttypes.fields import GenericForeignKey
 from user_role_management.guardian.compat import user_model_label
 from user_role_management.guardian.ctypes import get_content_type
-from user_role_management.utils.model_handler import create_fields
 from user_role_management.core.exceptions import error_response, success_response
 from user_role_management.guardian.managers import GroupObjectPermissionManager, UserObjectPermissionManager
 
@@ -116,7 +116,7 @@ class GroupObjectPermissionBase(BaseObjectPermission):
     """
     **Manager**: :manager:`GroupObjectPermissionManager`
     """
-    group = models.ForeignKey(Company_groups, on_delete=models.CASCADE)
+    group = models.ForeignKey(Company_group, on_delete=models.CASCADE)
 
     objects = GroupObjectPermissionManager()
 

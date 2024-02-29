@@ -9,6 +9,7 @@ from user_role_management.guardian.selectors import permission as permission_sel
 from user_role_management.guardian.models.models import UserObjectPermission, GroupObjectPermission
 from user_role_management.api.pagination import LimitOffsetPagination, get_paginated_response_context
 from user_role_management.core.exceptions import handle_validation_error, error_response, success_response
+from user_role_management.utils.serializer_handler import CustomSingleResponseSerializerBase, CustomMultiResponseSerializerBase
 
 
 class OutPutUserObjectPermissionSerializer(serializers.ModelSerializer):
@@ -17,21 +18,14 @@ class OutPutUserObjectPermissionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CustomUserObjectPermissionSingleResponseSerializer(serializers.Serializer):
-    is_success = serializers.BooleanField(default=True)
+class CustomUserObjectPermissionSingleResponseSerializer(CustomSingleResponseSerializerBase):
     data = OutPutUserObjectPermissionSerializer()
 
     class Meta:
         fields = ('is_success', 'data')
 
 
-class CustomUserObjectPermissionMultiResponseSerializer(serializers.Serializer):
-    is_success = serializers.BooleanField(default=True)
-    limit = serializers.IntegerField()
-    offset = serializers.IntegerField()
-    count = serializers.IntegerField()
-    next = serializers.CharField()
-    previous = serializers.CharField()
+class CustomUserObjectPermissionMultiResponseSerializer(CustomMultiResponseSerializerBase):
     data = serializers.ListSerializer(child=OutPutUserObjectPermissionSerializer())
 
     class Meta:
@@ -64,7 +58,7 @@ class UserObjectPermissionsApi(APIView):
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(parameters=[FilterUserObjectPermissionSerializer], responses=CustomUserObjectPermissionMultiResponseSerializer,
-                   tags=['UserObjectPermission'])
+                   tags=['Permission'])
     def get(self, request: HttpRequest):
         filter_serializer = self.FilterUserObjectPermissionSerializer(data=request.query_params)
         validation_result = handle_validation_error(serializer=filter_serializer)
@@ -72,12 +66,12 @@ class UserObjectPermissionsApi(APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            companies = permission_selector.get_user_object_permissions(request)
+            user_object_permissions = permission_selector.get_user_object_permissions(request)
             return get_paginated_response_context(
                 request=request,
                 pagination_class=self.Pagination,
                 serializer_class=OutPutUserObjectPermissionSerializer,
-                queryset=companies,
+                queryset=user_object_permissions,
                 view=self,
             )
         except Exception as ex:
@@ -89,7 +83,7 @@ class UserObjectPermissionApi(APIView):
     class UpdateUserObjectPermissionSerializer(UserObjectPermissionsApi.InputUserObjectPermissionSerializer):
         pass
 
-    @extend_schema(responses=CustomUserObjectPermissionSingleResponseSerializer, tags=['UserObjectPermission'])
+    @extend_schema(responses=CustomUserObjectPermissionSingleResponseSerializer, tags=['Permission'])
     def get(self, request: HttpRequest, user_object_permission_id: int):
         try:
             user_object_permission = permission_selector.get_user_object_permission(request=request, id=user_object_permission_id)
@@ -130,21 +124,14 @@ class OutPutGroupObjectPermissionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CustomGroupObjectPermissionSingleResponseSerializer(serializers.Serializer):
-    is_success = serializers.BooleanField(default=True)
+class CustomGroupObjectPermissionSingleResponseSerializer(CustomSingleResponseSerializerBase):
     data = OutPutGroupObjectPermissionSerializer()
 
     class Meta:
         fields = ('is_success', 'data')
 
 
-class CustomGroupObjectPermissionMultiResponseSerializer(serializers.Serializer):
-    is_success = serializers.BooleanField(default=True)
-    limit = serializers.IntegerField()
-    offset = serializers.IntegerField()
-    count = serializers.IntegerField()
-    next = serializers.CharField()
-    previous = serializers.CharField()
+class CustomGroupObjectPermissionMultiResponseSerializer(CustomMultiResponseSerializerBase):
     data = serializers.ListSerializer(child=OutPutGroupObjectPermissionSerializer())
 
     class Meta:
@@ -177,7 +164,7 @@ class GroupObjectPermissionsApi(APIView):
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(parameters=[FilterGroupObjectPermissionSerializer], responses=CustomGroupObjectPermissionMultiResponseSerializer,
-                   tags=['GroupObjectPermission'])
+                   tags=['Permission'])
     def get(self, request: HttpRequest):
         filter_serializer = self.FilterGroupObjectPermissionSerializer(data=request.query_params)
         validation_result = handle_validation_error(serializer=filter_serializer)
@@ -185,12 +172,12 @@ class GroupObjectPermissionsApi(APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            companies = permission_selector.get_group_object_permissions(request)
+            group_object_permissions = permission_selector.get_group_object_permissions(request)
             return get_paginated_response_context(
                 request=request,
                 pagination_class=self.Pagination,
                 serializer_class=OutPutGroupObjectPermissionSerializer,
-                queryset=companies,
+                queryset=group_object_permissions,
                 view=self,
             )
         except Exception as ex:
@@ -202,7 +189,7 @@ class GroupObjectPermissionApi(APIView):
     class UpdateGroupObjectPermissionSerializer(GroupObjectPermissionsApi.InputGroupObjectPermissionSerializer):
         pass
 
-    @extend_schema(responses=CustomGroupObjectPermissionSingleResponseSerializer, tags=['GroupObjectPermission'])
+    @extend_schema(responses=CustomGroupObjectPermissionSingleResponseSerializer, tags=['Permission'])
     def get(self, request: HttpRequest, group_object_permission_id: int):
         try:
             group_object_permission = permission_selector.get_group_object_permission(request=request, id=group_object_permission_id)
