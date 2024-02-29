@@ -1,12 +1,16 @@
+from django.db import models
+from django.db.models import QuerySet
+from typing import Dict, Any, Optional, Literal
 from django.contrib.auth.models import Permission
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
 from user_role_management.manage.models import Company_groups
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
-from django.db import models
-from django.utils.translation import gettext_lazy as _
 from user_role_management.guardian.compat import user_model_label
 from user_role_management.guardian.ctypes import get_content_type
+from user_role_management.utils.model_handler import create_fields
+from user_role_management.core.exceptions import error_response, success_response
 from user_role_management.guardian.managers import GroupObjectPermissionManager, UserObjectPermissionManager
 
 
@@ -73,6 +77,41 @@ class UserObjectPermission(UserObjectPermissionAbstract):
         abstract = False
 
 
+    @classmethod
+    def _create(cls, **kwargs: Dict[str, Any]) -> Dict[str, Literal['is_success', True, False]]:
+        try:
+            fields = create_fields(**kwargs)
+            new = cls.objects.create(**fields)
+            return success_response(data=new)
+        except Exception as ex:
+            return error_response(message=str(ex))
+
+    @classmethod
+    def _update(cls, id: int, **kwargs) -> Dict[str, Literal['is_success', True, False]]:
+        try:
+            obj = cls.objects.get(id=id)
+            fields = create_fields(**kwargs)
+            obj.__dict__.update(**fields)
+            obj.save()
+            return success_response(data=obj)
+        except Exception as ex:
+            return error_response(message=str(ex))
+
+    @classmethod
+    def _get_all(cls) -> QuerySet['Company']:
+        return cls.objects.all()
+
+    @classmethod
+    def _get_by_id(cls, id: int) -> Optional['Comapny']:
+        try:
+            return cls.objects.get(id=id)
+        except:
+            return None
+
+    def __str__(self):
+        return f"{self.process}_{self.title}"
+
+
 class GroupObjectPermissionBase(BaseObjectPermission):
     """
     **Manager**: :manager:`GroupObjectPermissionManager`
@@ -96,3 +135,37 @@ class GroupObjectPermission(GroupObjectPermissionAbstract):
 
     class Meta(GroupObjectPermissionAbstract.Meta):
         abstract = False
+
+    @classmethod
+    def _create(cls, **kwargs: Dict[str, Any]) -> Dict[str, Literal['is_success', True, False]]:
+        try:
+            fields = create_fields(**kwargs)
+            new = cls.objects.create(**fields)
+            return success_response(data=new)
+        except Exception as ex:
+            return error_response(message=str(ex))
+
+    @classmethod
+    def _update(cls, id: int, **kwargs) -> Dict[str, Literal['is_success', True, False]]:
+        try:
+            obj = cls.objects.get(id=id)
+            fields = create_fields(**kwargs)
+            obj.__dict__.update(**fields)
+            obj.save()
+            return success_response(data=obj)
+        except Exception as ex:
+            return error_response(message=str(ex))
+
+    @classmethod
+    def _get_all(cls) -> QuerySet['Company']:
+        return cls.objects.all()
+
+    @classmethod
+    def _get_by_id(cls, id: int) -> Optional['Comapny']:
+        try:
+            return cls.objects.get(id=id)
+        except:
+            return None
+
+    def __str__(self):
+        return f"{self.process}_{self.title}"
