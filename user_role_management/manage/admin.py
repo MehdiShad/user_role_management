@@ -10,7 +10,7 @@ class CompanyAdmin(GuardedModelAdmin):
     list_display_links = ['id', 'title']
 
 
-@admin.register(models.Company_groups)
+@admin.register(models.Company_group)
 class BaseGroupAdmin(admin.ModelAdmin):
     list_display = ['id', 'company', 'group']
 

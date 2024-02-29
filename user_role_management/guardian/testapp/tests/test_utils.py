@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import AnonymousUser
-from user_role_management.manage.models import Company_groups
+from user_role_management.manage.models import Company_group
 from django.db import models
 
 from user_role_management.guardian.testapp.tests.conf import skipUnlessTestApp
@@ -45,7 +45,7 @@ class GetIdentityTest(ObjectPermissionTestCase):
 
     def test_group(self):
         user, group = get_identity(self.group)
-        self.assertTrue(isinstance(group, Company_groups))
+        self.assertTrue(isinstance(group, Company_group))
         self.assertEqual(user, None)
 
     def test_not_user_nor_group(self):
@@ -64,7 +64,7 @@ class GetIdentityTest(ObjectPermissionTestCase):
         self.assertIsNone(group)
 
     def test_multiple_group_qs(self):
-        user, group = get_identity(Company_groups.objects.all())
+        user, group = get_identity(Company_group.objects.all())
         self.assertIsInstance(group, models.QuerySet)
         self.assertIsNone(user)
 
@@ -115,10 +115,10 @@ class GetGroupObjPermsModelTest(TestCase):
                          GroupObjectPermission)
 
     def test_group_model(self):
-        # this test assumes that there were no direct obj perms model to Company_groups
+        # this test assumes that there were no direct obj perms model to Company_group
         # model defined (i.e. while testing guardian app in some custom
         # project)
-        self.assertEqual(get_group_obj_perms_model(Company_groups),
+        self.assertEqual(get_group_obj_perms_model(Company_group),
                          GroupObjectPermission)
 
 

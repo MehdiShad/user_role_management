@@ -6,7 +6,7 @@ from django.apps import apps as django_apps
 from django.contrib.auth import get_user_model
 from django.contrib.auth.management import create_permissions
 from django.contrib.auth.models import Permission, AnonymousUser
-from user_role_management.manage.models import Company_groups
+from user_role_management.manage.models import Company_group
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
@@ -35,7 +35,7 @@ class CustomUserTests(TestCase):
 class ObjectPermissionTestCase(TestCase):
 
     def setUp(self):
-        self.group, created = Company_groups.objects.get_or_create(name='jackGroup')
+        self.group, created = Company_group.objects.get_or_create(name='jackGroup')
         self.user, created = User.objects.get_or_create(username='jack')
         self.user.groups.add(self.group)
         self.ctype = ContentType.objects.create(
@@ -88,14 +88,14 @@ class ObjectPermissionCheckerTest(ObjectPermissionTestCase):
             self.assertEqual(res, res_new)
             self.assertEqual(len(connection.queries), query_count)
 
-            # Checking for other permission but for Company_groups object again
+            # Checking for other permission but for Company_group object again
             # shouldn't spawn any query too
             query_count = len(connection.queries)
             checker.has_perm("delete_group", self.group)
             self.assertEqual(len(connection.queries), query_count)
 
             # Checking for same model but other instance should spawn 2 queries
-            new_group = Company_groups.objects.create(name='new-group')
+            new_group = Company_group.objects.create(name='new-group')
             query_count = len(connection.queries)
             checker.has_perm("change_group", new_group)
             self.assertEqual(len(connection.queries), query_count + 2)
@@ -164,7 +164,7 @@ class ObjectPermissionCheckerTest(ObjectPermissionTestCase):
         self.assertFalse(check.has_perm("change_contenttype", self.ctype))
 
     def test_get_perms(self):
-        group = Company_groups.objects.create(name='group')
+        group = Company_group.objects.create(name='group')
         obj1 = ContentType.objects.create(
             model='foo', app_label='guardian-tests')
         obj2 = ContentType.objects.create(
@@ -197,8 +197,8 @@ class ObjectPermissionCheckerTest(ObjectPermissionTestCase):
             from django.db import connection
 
             ContentType.objects.clear_cache()
-            group1 = Company_groups.objects.create(name='group1')
-            group2 = Company_groups.objects.create(name='group2')
+            group1 = Company_group.objects.create(name='group1')
+            group2 = Company_group.objects.create(name='group2')
             user = User.objects.create(username='active_user', is_active=True)
             assign_perm("change_group", user, self.group)
             assign_perm("change_group", user, group1)
@@ -219,7 +219,7 @@ class ObjectPermissionCheckerTest(ObjectPermissionTestCase):
             checker.has_perm("change_group", self.group)
             self.assertEqual(len(connection.queries), query_count)
 
-            # Checking for other permission but for Company_groups object again
+            # Checking for other permission but for Company_group object again
             # shouldn't spawn any query too
             checker.has_perm("delete_group", self.group)
             self.assertEqual(len(connection.queries), query_count)
@@ -242,7 +242,7 @@ class ObjectPermissionCheckerTest(ObjectPermissionTestCase):
             from django.db import connection
 
             ContentType.objects.clear_cache()
-            group1 = Company_groups.objects.create(name='group1')
+            group1 = Company_group.objects.create(name='group1')
             user = User.objects.create(username='active_superuser',
                                        is_superuser=True, is_active=True)
             assign_perm("change_group", user, self.group)
@@ -263,7 +263,7 @@ class ObjectPermissionCheckerTest(ObjectPermissionTestCase):
             checker.has_perm("change_group", self.group)
             self.assertEqual(len(connection.queries), query_count)
 
-            # Checking for other permission but for Company_groups object again
+            # Checking for other permission but for Company_group object again
             # shouldn't spawn any query too
             checker.has_perm("delete_group", self.group)
             self.assertEqual(len(connection.queries), query_count)
@@ -280,8 +280,8 @@ class ObjectPermissionCheckerTest(ObjectPermissionTestCase):
             from django.db import connection
 
             ContentType.objects.clear_cache()
-            group1 = Company_groups.objects.create(name='group1')
-            group2 = Company_groups.objects.create(name='group2')
+            group1 = Company_group.objects.create(name='group1')
+            group2 = Company_group.objects.create(name='group2')
             assign_perm("change_group", group1, self.group)
             assign_perm("change_group", group1, group1)
             checker = ObjectPermissionChecker(group1)
@@ -302,7 +302,7 @@ class ObjectPermissionCheckerTest(ObjectPermissionTestCase):
             checker.has_perm("change_group", self.group)
             self.assertEqual(len(connection.queries), query_count)
 
-            # Checking for other permission but for Company_groups object again
+            # Checking for other permission but for Company_group object again
             # shouldn't spawn any query too
             checker.has_perm("delete_group", self.group)
             self.assertEqual(len(connection.queries), query_count)
@@ -345,7 +345,7 @@ class ObjectPermissionCheckerTest(ObjectPermissionTestCase):
             checker.has_perm("change_project", projects[0])
             self.assertEqual(len(connection.queries), query_count)
 
-            # Checking for other permission but for Company_groups object again
+            # Checking for other permission but for Company_group object again
             # shouldn't spawn any query too
             checker.has_perm("delete_project", projects[0])
             self.assertEqual(len(connection.queries), query_count)
@@ -389,7 +389,7 @@ class ObjectPermissionCheckerTest(ObjectPermissionTestCase):
             checker.has_perm("change_project", projects[0])
             self.assertEqual(len(connection.queries), query_count)
 
-            # Checking for other permission but for Company_groups object again
+            # Checking for other permission but for Company_group object again
             # shouldn't spawn any query too
             checker.has_perm("delete_project", projects[0])
             self.assertEqual(len(connection.queries), query_count)
@@ -407,7 +407,7 @@ class ObjectPermissionCheckerTest(ObjectPermissionTestCase):
             from django.db import connection
 
             ContentType.objects.clear_cache()
-            group = Company_groups.objects.create(name='new-group')
+            group = Company_group.objects.create(name='new-group')
             projects = \
                 [Project.objects.create(name='Project%s' % i)
                     for i in range(3)]
@@ -427,7 +427,7 @@ class ObjectPermissionCheckerTest(ObjectPermissionTestCase):
             checker.has_perm("change_project", projects[0])
             self.assertEqual(len(connection.queries), query_count)
 
-            # Checking for other permission but for Company_groups object again
+            # Checking for other permission but for Company_group object again
             # shouldn't spawn any query too
             checker.has_perm("delete_project", projects[0])
             self.assertEqual(len(connection.queries), query_count)
@@ -454,8 +454,8 @@ class ObjectPermissionCheckerTest(ObjectPermissionTestCase):
             from django.db import connection
 
             ContentType.objects.clear_cache()
-            group1 = Company_groups.objects.create(name='group1')
-            group2 = Company_groups.objects.create(name='group2')
+            group1 = Company_group.objects.create(name='group1')
+            group2 = Company_group.objects.create(name='group2')
             user = User.objects.create(username='active_user', is_active=True)
             assign_groups = [self.group, group1]
             for group in assign_groups:
@@ -491,7 +491,7 @@ class ObjectPermissionCheckerTest(ObjectPermissionTestCase):
             self.assertTrue(user.has_perm("change_group", self.group))
             self.assertEqual(len(connection.queries), query_count)
 
-            # Checking for other permission but for Company_groups object again
+            # Checking for other permission but for Company_group object again
             # shouldn't spawn any query too
             self.assertFalse(checker.has_perm("delete_group", self.group))
             self.assertFalse(user.has_perm("delete_group", self.group))
@@ -537,7 +537,7 @@ class ObjectPermissionCheckerTest(ObjectPermissionTestCase):
             from django.db import connection
 
             ContentType.objects.clear_cache()
-            group1 = Company_groups.objects.create(name='group1')
+            group1 = Company_group.objects.create(name='group1')
             user = User.objects.create(username='active_superuser',
                                        is_superuser=True, is_active=True)
             assign_perm("change_group", user, self.group)
@@ -555,7 +555,7 @@ class ObjectPermissionCheckerTest(ObjectPermissionTestCase):
             self.assertTrue(user.has_perm("change_group", self.group))
             self.assertEqual(len(connection.queries), query_count)
 
-            # Checking for other permission but for Company_groups object again
+            # Checking for other permission but for Company_group object again
             # shouldn't spawn any query too
             self.assertTrue(checker.has_perm("delete_group", self.group))
             self.assertTrue(user.has_perm("delete_group", self.group))
@@ -580,7 +580,7 @@ class ObjectPermissionCheckerTest(ObjectPermissionTestCase):
             from django.db import connection
 
             ContentType.objects.clear_cache()
-            group = Company_groups.objects.create(name='new-group')
+            group = Company_group.objects.create(name='new-group')
             projects = \
                 [Project.objects.create(name='Project%s' % i)
                     for i in range(3)]
@@ -604,7 +604,7 @@ class ObjectPermissionCheckerTest(ObjectPermissionTestCase):
             self.assertTrue(checker.has_perm("change_project", projects[0]))
             self.assertEqual(len(connection.queries), query_count)
 
-            # Checking for other permission but for Company_groups object again
+            # Checking for other permission but for Company_group object again
             # shouldn't spawn any query too
             self.assertFalse(checker.has_perm("delete_project", projects[0]))
             self.assertEqual(len(connection.queries), query_count)

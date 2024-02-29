@@ -24,7 +24,7 @@ def monkey_patch_user():
     from .utils import get_user_obj_perms_model
     UserObjectPermission = get_user_obj_perms_model()
     User = get_user_model()
-    # Prototype User and Company_groups methods
+    # Prototype User and Company_group methods
     setattr(User, 'get_anonymous', staticmethod(lambda: get_anonymous_user()))
     setattr(User, 'add_obj_perm',
             lambda self, perm, obj: UserObjectPermission.objects.assign_perm(perm, self, obj))
@@ -35,11 +35,11 @@ def monkey_patch_user():
 
 def monkey_patch_group():
     from django.contrib.auth.models import Permission
-    from user_role_management.manage.models import Company_groups
+    from user_role_management.manage.models import Company_group
     from .utils import get_group_obj_perms_model
     GroupObjectPermission = get_group_obj_perms_model()
-    # Prototype Company_groups methods
-    setattr(Company_groups, 'add_obj_perm',
+    # Prototype Company_group methods
+    setattr(Company_group, 'add_obj_perm',
             lambda self, perm, obj: GroupObjectPermission.objects.assign_perm(perm, self, obj))
-    setattr(Company_groups, 'del_obj_perm',
+    setattr(Company_group, 'del_obj_perm',
             lambda self, perm, obj: GroupObjectPermission.objects.remove_perm(perm, self, obj))

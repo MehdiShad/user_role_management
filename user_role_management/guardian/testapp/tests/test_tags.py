@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
-from user_role_management.manage.models import Company_groups
+from user_role_management.manage.models import Company_group
 from django.contrib.contenttypes.models import ContentType
 from django.template import Template, Context, TemplateSyntaxError
 from django.test import TestCase
@@ -27,7 +27,7 @@ class GetObjPermsTagTest(TestCase):
     def setUp(self):
         self.ctype = ContentType.objects.create(
             model='bar', app_label='fake-for-guardian-tests')
-        self.group = Company_groups.objects.create(name='jackGroup')
+        self.group = Company_group.objects.create(name='jackGroup')
         self.user = User.objects.create(username='jack')
         self.user.groups.add(self.group)
 
@@ -139,7 +139,7 @@ class GetObjPermsTagTest(TestCase):
                                                           self.ctype)
 
         checker = ObjectPermissionChecker(self.user)
-        checker.prefetch_perms(Company_groups.objects.all())
+        checker.prefetch_perms(Company_group.objects.all())
 
         template = ''.join((
             '{% load guardian_tags %}',

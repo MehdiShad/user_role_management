@@ -8,7 +8,7 @@ from .models import (
     GroupObjectPermissionAbstract,
     GroupObjectPermission,
     Permission,
-    Company_groups
+    Company_group
 )
 
 
@@ -20,7 +20,7 @@ __all__ = [
     'GroupObjectPermissionBase',
     'GroupObjectPermissionAbstract',
     'Permission',
-    'Company_groups',
+    'Company_group',
     'UserObjectPermission',
     'GroupObjectPermission'
 ]

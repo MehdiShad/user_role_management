@@ -6,7 +6,7 @@ from django.contrib import admin, messages
 from django.utils.translation import gettext
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
-from user_role_management.manage.models import Company_groups
+from user_role_management.manage.models import Company_group
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.shortcuts import get_object_or_404, redirect, render
 from user_role_management.guardian.models import GroupObjectPermission, UserObjectPermission
@@ -299,7 +299,7 @@ class GuardedModelAdminMixin:
             post_url = reverse('admin:index', current_app=self.admin_site.name)
             return redirect(post_url)
 
-        group = get_object_or_404(Company_groups, id=group_id)
+        group = get_object_or_404(Company_group, id=group_id)
         obj = get_object_or_404(self.get_queryset(request), pk=object_pk)
         form_class = self.get_obj_perms_manage_group_form(request)
         form = form_class(group, obj, request.POST or None)
@@ -463,13 +463,13 @@ class GroupManage(forms.Form):
 
     def clean_group(self):
         """
-        Returns ``Company_groups`` instance based on the given group name.
+        Returns ``Company_group`` instance based on the given group name.
         """
         name = self.cleaned_data['group']
         try:
-            group = Company_groups.objects.get(name=name)
+            group = Company_group.objects.get(name=name)
             return group
-        except Company_groups.DoesNotExist:
+        except Company_group.DoesNotExist:
             raise forms.ValidationError(
                 self.fields['group'].error_messages['does_not_exist'])
 

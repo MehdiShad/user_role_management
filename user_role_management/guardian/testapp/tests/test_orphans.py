@@ -9,7 +9,7 @@ from django.test import TestCase
 
 from user_role_management.guardian.utils import clean_orphan_obj_perms
 from user_role_management.guardian.shortcuts import assign_perm
-from user_role_management.manage.models import Company_groups
+from user_role_management.manage.models import Company_group
 from user_role_management.guardian.testapp.tests.conf import skipUnlessTestApp
 
 
@@ -23,7 +23,7 @@ class OrphanedObjectPermissionsTest(TestCase):
     def setUp(self):
         # Create objects for which we would assing obj perms
         self.target_user1 = User.objects.create(username='user1')
-        self.target_group1 = Company_groups.objects.create(name='group1')
+        self.target_group1 = Company_group.objects.create(name='group1')
         self.target_obj1 = ContentType.objects.create(
             model='foo', app_label='fake-for-guardian-tests')
         self.target_obj2 = ContentType.objects.create(
@@ -32,7 +32,7 @@ class OrphanedObjectPermissionsTest(TestCase):
         create_permissions(auth_app, 1)
 
         self.user = User.objects.create(username='user')
-        self.group = Company_groups.objects.create(name='group')
+        self.group = Company_group.objects.create(name='group')
 
     def test_clean_perms(self):
 

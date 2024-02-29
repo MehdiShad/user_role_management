@@ -8,7 +8,7 @@ class GuardianConfig(AppConfig):
     default_auto_field = 'django.db.models.AutoField'
 
     def ready(self):
-        # Must patch Company_groups here since generic
+        # Must patch Company_group here since generic
         # group permission model is definable
         monkey_patch_group()
         if settings.MONKEY_PATCH:

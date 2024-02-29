@@ -12,7 +12,7 @@ from itertools import chain
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME, get_user_model
 from django.contrib.auth.models import AnonymousUser
-from user_role_management.manage.models import Company_groups
+from user_role_management.manage.models import Company_group
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db.models import Model, QuerySet
 from django.http import HttpResponseForbidden, HttpResponseNotFound
@@ -42,7 +42,7 @@ def get_identity(identity):
     instead - it is convenient and needed for authorization backend to support
     anonymous users.
 
-    :param identity: either ``User`` or ``Company_groups`` instance
+    :param identity: either ``User`` or ``Company_group`` instance
 
     :raises ``NotUserNorGroup``: if cannot return proper identity instance
 
@@ -53,9 +53,9 @@ def get_identity(identity):
        >>> get_identity(user)
        (<User: joe>, None)
 
-       >>> group = Company_groups.objects.create(name='users')
+       >>> group = Company_group.objects.create(name='users')
        >>> get_identity(group)
-       (None, <Company_groups: users>)
+       (None, <Company_group: users>)
 
        >>> anon = AnonymousUser()
        >>> get_identity(anon)
@@ -63,7 +63,7 @@ def get_identity(identity):
 
        >>> get_identity("not instance")
        ...
-       NotUserNorGroup: User/AnonymousUser or Company_groups instance is required (got )
+       NotUserNorGroup: User/AnonymousUser or Company_group instance is required (got )
 
     """
     if isinstance(identity, AnonymousUser):
@@ -74,21 +74,21 @@ def get_identity(identity):
         identity_model_type = identity.model
         if identity_model_type == get_user_model():
             return identity, None
-        elif identity_model_type == Company_groups:
+        elif identity_model_type == Company_group:
             return None, identity
 
     # get identity from first element in list
     if isinstance(identity, list) and isinstance(identity[0], get_user_model()):
         return identity, None
-    if isinstance(identity, list) and isinstance(identity[0], Company_groups):
+    if isinstance(identity, list) and isinstance(identity[0], Company_group):
         return None, identity
 
     if isinstance(identity, get_user_model()):
         return identity, None
-    if isinstance(identity, Company_groups):
+    if isinstance(identity, Company_group):
         return None, identity
 
-    raise NotUserNorGroup("User/AnonymousUser or Company_groups instance is required "
+    raise NotUserNorGroup("User/AnonymousUser or Company_group instance is required "
                           "(got %s)" % identity)
 
 
@@ -229,7 +229,7 @@ def get_user_obj_perms_model(obj = None):
 
 def get_group_obj_perms_model(obj = None):
     """
-    Returns model class that connects given ``obj`` and Company_groups class.
+    Returns model class that connects given ``obj`` and Company_group class.
     If obj is not specified, then group generic object permission model
     returned is determined byt the guardian setting 'GROUP_OBJ_PERMS_MODEL'.
     """

@@ -26,7 +26,7 @@ from user_role_management.guardian.exceptions import WrongAppError
 from user_role_management.guardian.exceptions import MultipleIdentityAndObjectError
 from user_role_management.guardian.testapp.models import CharPKModel, ChildTestModel, UUIDPKModel
 from user_role_management.guardian.testapp.tests.test_core import ObjectPermissionTestCase
-from user_role_management.guardian.models import Permission, Company_groups
+from user_role_management.guardian.models import Permission, Company_group
 
 
 User = get_user_model()
@@ -176,13 +176,13 @@ class MultipleIdentitiesOperationsTest(ObjectPermissionTestCase):
             User.objects.create_user(username='bob')
         ]
         self.groups_list = jim_group, bob_group = [
-            Company_groups.objects.create(name='jimgroup'),
-            Company_groups.objects.create(name='bobgroup')
+            Company_group.objects.create(name='jimgroup'),
+            Company_group.objects.create(name='bobgroup')
         ]
         jim_group.user_set.add(jim)
         bob_group.user_set.add(bob)
         self.users_qs = User.objects.exclude(username='AnonymousUser')
-        self.groups_qs = Company_groups.objects.all()
+        self.groups_qs = Company_group.objects.all()
 
     def test_assign_to_many_users_queryset(self):
         assign_perm("add_contenttype", self.users_qs, self.ctype)
@@ -328,9 +328,9 @@ class GetUsersWithPermsTest(TestCase):
         self.user1 = User.objects.create(username='user1')
         self.user2 = User.objects.create(username='user2')
         self.user3 = User.objects.create(username='user3')
-        self.group1 = Company_groups.objects.create(name='group1')
-        self.group2 = Company_groups.objects.create(name='group2')
-        self.group3 = Company_groups.objects.create(name='group3')
+        self.group1 = Company_group.objects.create(name='group1')
+        self.group2 = Company_group.objects.create(name='group2')
+        self.group3 = Company_group.objects.create(name='group3')
 
     def test_empty(self):
         result = get_users_with_perms(self.obj1)
@@ -614,9 +614,9 @@ class GetGroupsWithPerms(TestCase):
         self.user1 = User.objects.create(username='user1')
         self.user2 = User.objects.create(username='user2')
         self.user3 = User.objects.create(username='user3')
-        self.group1 = Company_groups.objects.create(name='group1')
-        self.group2 = Company_groups.objects.create(name='group2')
-        self.group3 = Company_groups.objects.create(name='group3')
+        self.group1 = Company_group.objects.create(name='group1')
+        self.group2 = Company_group.objects.create(name='group2')
+        self.group3 = Company_group.objects.create(name='group3')
 
     def test_empty(self):
         result = get_groups_with_perms(self.obj1)
@@ -654,7 +654,7 @@ class GetGroupsWithPerms(TestCase):
     def test_filter_by_contenttype(self):
         # Make sure that both objects have same pk.
         obj = ContentType.objects.create(pk=1042, model='baz', app_label='guardian-tests')
-        group = Company_groups.objects.create(pk=1042, name='group')
+        group = Company_group.objects.create(pk=1042, name='group')
 
         assign_perm("change_group", self.group1, group)
         assign_perm("change_contenttype", self.group1, obj)
@@ -698,7 +698,7 @@ class GetObjectsForUser(TestCase):
 
     def setUp(self):
         self.user = User.objects.create(username='joe')
-        self.group = Company_groups.objects.create(name='group')
+        self.group = Company_group.objects.create(name='group')
         self.ctype = ContentType.objects.create(
             model='bar', app_label='fake-for-guardian-tests')
 
@@ -764,7 +764,7 @@ class GetObjectsForUser(TestCase):
                           ['change_group'])
 
     def test_empty_perms_sequence(self):
-        objects = get_objects_for_user(self.user, [], Company_groups.objects.all())
+        objects = get_objects_for_user(self.user, [], Company_group.objects.all())
         self.assertEqual(
             set(objects),
             set()
@@ -787,13 +787,13 @@ class GetObjectsForUser(TestCase):
     def test_klass_as_manager(self):
         assign_perm('auth.change_group', self.user, self.group)
         objects = get_objects_for_user(self.user, ['auth.change_group'],
-                                       Company_groups.objects)
+                                       Company_group.objects)
         self.assertEqual([obj.name for obj in objects], [self.group.name])
 
     def test_klass_as_queryset(self):
         assign_perm('auth.change_group', self.user, self.group)
         objects = get_objects_for_user(self.user, ['auth.change_group'],
-                                       Company_groups.objects.all())
+                                       Company_group.objects.all())
         self.assertEqual([obj.name for obj in objects], [self.group.name])
 
     def test_ensure_returns_queryset(self):
@@ -802,7 +802,7 @@ class GetObjectsForUser(TestCase):
 
     def test_simple(self):
         group_names = ['group1', 'group2', 'group3']
-        groups = [Company_groups.objects.create(name=name) for name in group_names]
+        groups = [Company_group.objects.create(name=name) for name in group_names]
         for group in groups:
             assign_perm('change_group', self.user, group)
 
@@ -815,7 +815,7 @@ class GetObjectsForUser(TestCase):
 
     def test_multiple_perms_to_check(self):
         group_names = ['group1', 'group2', 'group3']
-        groups = [Company_groups.objects.create(name=name) for name in group_names]
+        groups = [Company_group.objects.create(name=name) for name in group_names]
         for group in groups:
             assign_perm('auth.change_group', self.user, group)
         assign_perm('auth.delete_group', self.user, groups[1])
@@ -830,7 +830,7 @@ class GetObjectsForUser(TestCase):
 
     def test_multiple_perms_to_check_no_groups(self):
         group_names = ['group1', 'group2', 'group3']
-        groups = [Company_groups.objects.create(name=name) for name in group_names]
+        groups = [Company_group.objects.create(name=name) for name in group_names]
         for group in groups:
             assign_perm('auth.change_group', self.user, group)
         assign_perm('auth.delete_group', self.user, groups[1])
@@ -845,7 +845,7 @@ class GetObjectsForUser(TestCase):
 
     def test_any_of_multiple_perms_to_check(self):
         group_names = ['group1', 'group2', 'group3']
-        groups = [Company_groups.objects.create(name=name) for name in group_names]
+        groups = [Company_group.objects.create(name=name) for name in group_names]
         assign_perm('auth.change_group', self.user, groups[0])
         assign_perm('auth.delete_group', self.user, groups[2])
 
@@ -858,9 +858,9 @@ class GetObjectsForUser(TestCase):
             {groups[0].name, groups[2].name})
 
     def test_groups_perms(self):
-        group1 = Company_groups.objects.create(name='group1')
-        group2 = Company_groups.objects.create(name='group2')
-        group3 = Company_groups.objects.create(name='group3')
+        group1 = Company_group.objects.create(name='group1')
+        group2 = Company_group.objects.create(name='group2')
+        group3 = Company_group.objects.create(name='group3')
         groups = [group1, group2, group3]
         for group in groups:
             self.user.groups.add(group)
@@ -899,7 +899,7 @@ class GetObjectsForUser(TestCase):
 
     def test_has_global_permission_only(self):
         group_names = ['group1', 'group2', 'group3']
-        groups = [Company_groups.objects.create(name=name) for name in group_names]
+        groups = [Company_group.objects.create(name=name) for name in group_names]
         # global permission to change any group
         perm = 'auth.change_group'
 
@@ -907,11 +907,11 @@ class GetObjectsForUser(TestCase):
         objects = get_objects_for_user(self.user, perm)
         remove_perm(perm, self.user)
         self.assertEqual(set(objects),
-                         set(Company_groups.objects.all()))
+                         set(Company_group.objects.all()))
 
     def test_has_global_permission_and_object_based_permission(self):
         group_names = ['group1', 'group2', 'group3']
-        groups = [Company_groups.objects.create(name=name) for name in group_names]
+        groups = [Company_group.objects.create(name=name) for name in group_names]
         # global permission to change any group
         perm_global = 'auth.change_group'
         perm_obj = 'delete_group'
@@ -924,7 +924,7 @@ class GetObjectsForUser(TestCase):
 
     def test_has_global_permission_and_object_based_permission_any_perm(self):
         group_names = ['group1', 'group2', 'group3']
-        groups = [Company_groups.objects.create(name=name) for name in group_names]
+        groups = [Company_group.objects.create(name=name) for name in group_names]
         # global permission to change any group
         perm_global = 'auth.change_group'
         # object based permission to change only a specific group
@@ -935,11 +935,11 @@ class GetObjectsForUser(TestCase):
             self.user, [perm_global, perm_obj], any_perm=True, accept_global_perms=True)
         remove_perm(perm_global, self.user)
         self.assertEqual(set(objects),
-                         set(Company_groups.objects.all()))
+                         set(Company_group.objects.all()))
 
     def test_object_based_permission_without_global_permission(self):
         group_names = ['group1', 'group2', 'group3']
-        groups = [Company_groups.objects.create(name=name) for name in group_names]
+        groups = [Company_group.objects.create(name=name) for name in group_names]
         # global permission to delete any group
         perm_global = 'auth.delete_group'
         perm_obj = 'auth.delete_group'
@@ -953,7 +953,7 @@ class GetObjectsForUser(TestCase):
 
     def test_object_based_permission_with_groups_2perms(self):
         group_names = ['group1', 'group2', 'group3']
-        groups = [Company_groups.objects.create(name=name) for name in group_names]
+        groups = [Company_group.objects.create(name=name) for name in group_names]
         for group in groups:
             self.user.groups.add(group)
         # Objects to operate on
@@ -979,7 +979,7 @@ class GetObjectsForUser(TestCase):
     def test_object_based_permission_with_groups_3perms(self):
 
         group_names = ['group1', 'group2', 'group3']
-        groups = [Company_groups.objects.create(name=name) for name in group_names]
+        groups = [Company_group.objects.create(name=name) for name in group_names]
         for group in groups:
             self.user.groups.add(group)
         # Objects to operate on
@@ -1133,11 +1133,11 @@ class GetObjectsForUser(TestCase):
     def test_has_any_permissions(self):
         # We use groups as objects.
         group_names = ['group1', 'group2', 'group3']
-        groups = [Company_groups.objects.create(name=name) for name in group_names]
+        groups = [Company_group.objects.create(name=name) for name in group_names]
         for group in groups:
             assign_perm('change_group', self.user, group)
 
-        objects = get_objects_for_user(self.user, [], Company_groups)
+        objects = get_objects_for_user(self.user, [], Company_group)
         self.assertEqual(len(objects), len(groups))
         self.assertTrue(isinstance(objects, QuerySet))
         self.assertEqual(
@@ -1154,11 +1154,11 @@ class GetObjectsForUser(TestCase):
     def test_has_any_group_permissions(self):
         # We use groups as objects.
         group_names = ['group1', 'group2', 'group3']
-        groups = [Company_groups.objects.create(name=name) for name in group_names]
+        groups = [Company_group.objects.create(name=name) for name in group_names]
         for group in groups:
             assign_perm('change_group', self.group, group)
 
-        objects = get_objects_for_group(self.group, [], Company_groups)
+        objects = get_objects_for_group(self.group, [], Company_group)
         self.assertEqual(len(objects), len(groups))
         self.assertTrue(isinstance(objects, QuerySet))
         self.assertEqual(
@@ -1181,9 +1181,9 @@ class GetObjectsForGroup(TestCase):
         self.user1 = User.objects.create(username='user1')
         self.user2 = User.objects.create(username='user2')
         self.user3 = User.objects.create(username='user3')
-        self.group1 = Company_groups.objects.create(name='group1')
-        self.group2 = Company_groups.objects.create(name='group2')
-        self.group3 = Company_groups.objects.create(name='group3')
+        self.group1 = Company_group.objects.create(name='group1')
+        self.group2 = Company_group.objects.create(name='group2')
+        self.group3 = Company_group.objects.create(name='group3')
 
     def test_mixed_perms(self):
         codenames = [

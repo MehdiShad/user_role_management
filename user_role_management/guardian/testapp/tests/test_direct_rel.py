@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
-from user_role_management.manage.models import Company_groups
+from user_role_management.manage.models import Company_group
 from django.test import TestCase
 
 from user_role_management.guardian.shortcuts import assign_perm
@@ -79,7 +79,7 @@ class TestDirectUserPermissions(TestCase):
     def test_get_users_with_perms_plus_groups(self):
         User.objects.create_user('john', 'john@foobar.com', 'john')
         jane = User.objects.create_user('jane', 'jane@foobar.com', 'jane')
-        group = Company_groups.objects.create(name='devs')
+        group = Company_group.objects.create(name='devs')
         self.joe.groups.add(group)
         assign_perm('add_project', self.joe, self.project)
         assign_perm('change_project', group, self.project)
@@ -122,7 +122,7 @@ class TestDirectUserPermissions(TestCase):
 class TestDirectGroupPermissions(TestCase):
     def setUp(self):
         self.joe = User.objects.create_user('joe', 'joe@example.com', 'foobar')
-        self.group = Company_groups.objects.create(name='admins')
+        self.group = Company_group.objects.create(name='admins')
         self.joe.groups.add(self.group)
         self.project = Project.objects.create(name='Foobar')
 
@@ -167,8 +167,8 @@ class TestDirectGroupPermissions(TestCase):
         self.assertEqual(result, 0)
 
     def test_get_groups_with_perms(self):
-        Company_groups.objects.create(name='managers')
-        devs = Company_groups.objects.create(name='devs')
+        Company_group.objects.create(name='managers')
+        devs = Company_group.objects.create(name='devs')
         assign_perm('add_project', self.group, self.project)
         assign_perm('change_project', self.group, self.project)
         assign_perm('change_project', devs, self.project)
@@ -179,13 +179,13 @@ class TestDirectGroupPermissions(TestCase):
                          })
 
     def test_get_groups_with_perms_doesnt_spawn_extra_queries_for_more_groups_with_perms(self):
-        Company_groups.objects.create(name='managers')
-        devs = Company_groups.objects.create(name='devs')
-        devs1 = Company_groups.objects.create(name='devs1')
-        devs2 = Company_groups.objects.create(name='devs2')
-        devs3 = Company_groups.objects.create(name='devs3')
-        devs4 = Company_groups.objects.create(name='devs4')
-        devs5 = Company_groups.objects.create(name='devs5')
+        Company_group.objects.create(name='managers')
+        devs = Company_group.objects.create(name='devs')
+        devs1 = Company_group.objects.create(name='devs1')
+        devs2 = Company_group.objects.create(name='devs2')
+        devs3 = Company_group.objects.create(name='devs3')
+        devs4 = Company_group.objects.create(name='devs4')
+        devs5 = Company_group.objects.create(name='devs5')
         assign_perm('add_project', self.group, self.project)
         assign_perm('change_project', self.group, self.project)
         for group in [devs, devs1, devs2, devs3, devs4, devs5]:
@@ -222,7 +222,7 @@ class TestDirectGroupPermissions(TestCase):
 class TestMixedDirectAndGenericObjectPermission(TestCase):
     def setUp(self):
         self.joe = User.objects.create_user('joe', 'joe@example.com', 'foobar')
-        self.group = Company_groups.objects.create(name='admins')
+        self.group = Company_group.objects.create(name='admins')
         self.joe.groups.add(self.group)
         self.mixed = Mixed.objects.create(name='Foobar')
         self.reverse_mixed = ReverseMixed.objects.create(name='Foobar')
@@ -230,7 +230,7 @@ class TestMixedDirectAndGenericObjectPermission(TestCase):
     def test_get_users_with_perms_plus_groups(self):
         User.objects.create_user('john', 'john@foobar.com', 'john')
         jane = User.objects.create_user('jane', 'jane@foobar.com', 'jane')
-        group = Company_groups.objects.create(name='devs')
+        group = Company_group.objects.create(name='devs')
         self.joe.groups.add(group)
         assign_perm('add_mixed', self.joe, self.mixed)
         assign_perm('change_mixed', group, self.mixed)
@@ -247,7 +247,7 @@ class TestMixedDirectAndGenericObjectPermission(TestCase):
     def test_get_users_with_perms_plus_groups_reverse_mixed(self):
         User.objects.create_user('john', 'john@foobar.com', 'john')
         jane = User.objects.create_user('jane', 'jane@foobar.com', 'jane')
-        group = Company_groups.objects.create(name='devs')
+        group = Company_group.objects.create(name='devs')
         self.joe.groups.add(group)
         assign_perm('add_reversemixed', self.joe, self.reverse_mixed)
         assign_perm('change_reversemixed', group, self.reverse_mixed)

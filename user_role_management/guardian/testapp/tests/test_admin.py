@@ -15,7 +15,7 @@ from django.urls import reverse
 from user_role_management.guardian.admin import GuardedModelAdmin
 from user_role_management.guardian.shortcuts import get_perms
 from user_role_management.guardian.shortcuts import get_perms_for_model
-from user_role_management.manage.models import Company_groups
+from user_role_management.manage.models import Company_group
 from user_role_management.guardian.testapp.tests.conf import skipUnlessTestApp
 from user_role_management.guardian.testapp.models import LogEntryWithGroup as LogEntry
 
@@ -38,7 +38,7 @@ class AdminTests(TestCase):
         self.admin = User.objects.create_superuser('admin', 'admin@example.com',
                                                    'admin')
         self.user = User.objects.create_user('joe', 'joe@example.com', 'joe')
-        self.group = Company_groups.objects.create(name='group')
+        self.group = Company_group.objects.create(name='group')
         self.client = Client()
         self.obj = ContentType.objects.create(
             model='bar', app_label='fake-for-guardian-tests')
@@ -199,7 +199,7 @@ class AdminTests(TestCase):
         self._login_superuser()
         url = reverse('admin:%s_%s_permissions' % self.obj_info,
                       args=[self.obj.pk])
-        self.group = Company_groups.objects.create(name='neagive_id_group', id=-2010)
+        self.group = Company_group.objects.create(name='neagive_id_group', id=-2010)
         data = {'group': self.group.name, 'submit_manage_group': 'submit'}
         response = self.client.post(url, data, follow=True)
         self.assertEqual(len(response.redirect_chain), 1)
@@ -390,10 +390,10 @@ class GuardedModelAdminTests(TestCase):
         }
         gma = self._get_gma(attrs=attrs, model=LogEntry)
         joe = User.objects.create_user('joe', 'joe@example.com', 'joe')
-        joe_group = Company_groups.objects.create(name='joe-group')
+        joe_group = Company_group.objects.create(name='joe-group')
         joe.groups.add(joe_group)
         jane = User.objects.create_user('jane', 'jane@example.com', 'jane')
-        jane_group = Company_groups.objects.create(name='jane-group')
+        jane_group = Company_group.objects.create(name='jane-group')
         jane.groups.add(jane_group)
         ctype = ContentType.objects.get_for_model(User)
         LogEntry.objects.create(user=joe, content_type=ctype,
@@ -415,10 +415,10 @@ class GuardedModelAdminTests(TestCase):
         }
         gma = self._get_gma(attrs=attrs, model=LogEntry)
         joe = User.objects.create_superuser('joe', 'joe@example.com', 'joe')
-        joe_group = Company_groups.objects.create(name='joe-group')
+        joe_group = Company_group.objects.create(name='joe-group')
         joe.groups.add(joe_group)
         jane = User.objects.create_user('jane', 'jane@example.com', 'jane')
-        jane_group = Company_groups.objects.create(name='jane-group')
+        jane_group = Company_group.objects.create(name='jane-group')
         jane.groups.add(jane_group)
         ctype = ContentType.objects.get_for_model(User)
         LogEntry.objects.create(user=joe, content_type=ctype,
