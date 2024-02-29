@@ -17,4 +17,5 @@ def register(*, email: str, password: str) -> BaseUser:
 
 
 def update_user(*, request: HttpRequest, id: int, **kwargs) -> Dict[str, Literal['is_success', True, False]]:
+    # TODO: Add companies to update the user
     return BaseUser._update(id=id, **kwargs)

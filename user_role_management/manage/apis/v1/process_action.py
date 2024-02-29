@@ -9,6 +9,7 @@ from user_role_management.manage.services import process_action as process_actio
 from user_role_management.manage.selectors import process_action as process_action_selector
 from user_role_management.api.pagination import LimitOffsetPagination, get_paginated_response_context
 from user_role_management.core.exceptions import handle_validation_error, error_response, success_response
+from user_role_management.utils.serializer_handler import CustomSingleResponseSerializerBase, CustomMultiResponseSerializerBase
 
 
 class OutPutProcessSerializer(serializers.ModelSerializer):
@@ -17,21 +18,14 @@ class OutPutProcessSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CustomProcessSingleResponseSerializer(serializers.Serializer):
-    is_success = serializers.BooleanField(default=True)
+class CustomProcessSingleResponseSerializer(CustomSingleResponseSerializerBase):
     data = OutPutProcessSerializer()
 
     class Meta:
         fields = ('is_success', 'data')
 
 
-class CustomProcessMultiResponseSerializer(serializers.Serializer):
-    is_success = serializers.BooleanField(default=True)
-    limit = serializers.IntegerField()
-    offset = serializers.IntegerField()
-    count = serializers.IntegerField()
-    next = serializers.CharField()
-    previous = serializers.CharField()
+class CustomProcessMultiResponseSerializer(CustomMultiResponseSerializerBase):
     data = serializers.ListSerializer(child=OutPutProcessSerializer())
 
     class Meta:
@@ -43,7 +37,7 @@ class ProcessesApi(APIView):
         default_limit = 50
 
     class InputProcessSerializer(serializers.Serializer):
-        company = serializers.IntegerField()
+        company_id = serializers.IntegerField()
         name = serializers.CharField(max_length=155)
 
     class FilterProcessSerializer(serializers.Serializer):
@@ -73,12 +67,12 @@ class ProcessesApi(APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            companies = process_action_selector.get_processes(request)
+            processes = process_action_selector.get_processes(request)
             return get_paginated_response_context(
                 request=request,
                 pagination_class=self.Pagination,
                 serializer_class=OutPutProcessSerializer,
-                queryset=companies,
+                queryset=processes,
                 view=self,
             )
         except Exception as ex:
@@ -126,21 +120,14 @@ class OutPutActionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CustomActionSingleResponseSerializer(serializers.Serializer):
-    is_success = serializers.BooleanField(default=True)
+class CustomActionSingleResponseSerializer(CustomSingleResponseSerializerBase):
     data = OutPutActionSerializer()
 
     class Meta:
         fields = ('is_success', 'data')
 
 
-class CustomActionMultiResponseSerializer(serializers.Serializer):
-    is_success = serializers.BooleanField(default=True)
-    limit = serializers.IntegerField()
-    offset = serializers.IntegerField()
-    count = serializers.IntegerField()
-    next = serializers.CharField()
-    previous = serializers.CharField()
+class CustomActionMultiResponseSerializer(CustomMultiResponseSerializerBase):
     data = serializers.ListSerializer(child=OutPutActionSerializer())
 
     class Meta:
@@ -152,7 +139,7 @@ class ActionsApi(APIView):
         default_limit = 50
 
     class InputActionSerializer(serializers.Serializer):
-        process = serializers.IntegerField()
+        process_id = serializers.IntegerField()
         title = serializers.CharField(max_length=155)
 
     class FilterActionSerializer(serializers.Serializer):
@@ -182,12 +169,12 @@ class ActionsApi(APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            companies = process_action_selector.get_companies(request)
+            actions = process_action_selector.get_actions(request)
             return get_paginated_response_context(
                 request=request,
                 pagination_class=self.Pagination,
                 serializer_class=OutPutActionSerializer,
-                queryset=companies,
+                queryset=actions,
                 view=self,
             )
         except Exception as ex:
