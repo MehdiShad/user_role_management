@@ -32,7 +32,7 @@ class CustomEmployeeMultiResponseSerializer(CustomMultiResponseSerializerBase):
         fields = ('is_success', 'data')
 
 
-class EmployeesApi(APIView):
+class EmployeesApi(ApiAuthMixin, APIView):
     class Pagination(LimitOffsetPagination):
         default_limit = 50
 
@@ -81,7 +81,7 @@ class EmployeesApi(APIView):
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
 
-class EmployeeApi(APIView):
+class EmployeeApi(ApiAuthMixin, APIView):
     class UpdateEmployeeSerializer(EmployeesApi.InputEmployeeSerializer):
         company_id = serializers.IntegerField(required=False)
         personnel_code = serializers.CharField(max_length=15, required=False)
@@ -140,7 +140,7 @@ class CustomPositionMultiResponseSerializer(CustomMultiResponseSerializerBase):
         fields = ('is_success', 'data')
 
 
-class PositionsApi(APIView):
+class PositionsApi(ApiAuthMixin, APIView):
     class Pagination(LimitOffsetPagination):
         default_limit = 50
 
@@ -188,7 +188,7 @@ class PositionsApi(APIView):
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
 
-class PositionApi(APIView):
+class PositionApi(ApiAuthMixin, APIView):
     class UpdatePositionSerializer(PositionsApi.InputPositionSerializer):
         title = serializers.CharField(max_length=155, required=False)
 
@@ -242,7 +242,7 @@ class CustomDepartmentMultiResponseSerializer(CustomMultiResponseSerializerBase)
         fields = ('is_success', 'data')
 
 
-class DepartmentsApi(APIView):
+class DepartmentsApi(ApiAuthMixin, APIView):
     class Pagination(LimitOffsetPagination):
         default_limit = 50
 
@@ -291,7 +291,7 @@ class DepartmentsApi(APIView):
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
 
-class DepartmentApi(APIView):
+class DepartmentApi(ApiAuthMixin, APIView):
     class UpdateDepartmentSerializer(DepartmentsApi.InputDepartmentSerializer):
         title = serializers.CharField(max_length=155, required=False)
 
@@ -348,7 +348,7 @@ class CustomCompanyDepartmentMultiResponseSerializer(CustomMultiResponseSerializ
         fields = ('is_success', 'data')
 
 
-class CompanyDepartmentsApi(APIView):
+class CompanyDepartmentsApi(ApiAuthMixin, APIView):
     class Pagination(LimitOffsetPagination):
         default_limit = 50
 
@@ -402,7 +402,7 @@ class CompanyDepartmentsApi(APIView):
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CompanyDepartmentApi(APIView):
+class CompanyDepartmentApi(ApiAuthMixin, APIView):
     class UpdateCompanyDepartmentSerializer(CompanyDepartmentsApi.InputCompanyDepartmentSerializer):
         company_id = serializers.IntegerField(required=False)
         department_id = serializers.IntegerField(required=False)
@@ -464,7 +464,7 @@ class CustomCompanyDepartmentEmployeeMultiResponseSerializer(CustomMultiResponse
         fields = ('is_success', 'data')
 
 
-class CompanyDepartmentEmployeesApi(APIView):
+class CompanyDepartmentEmployeesApi(ApiAuthMixin, APIView):
     class Pagination(LimitOffsetPagination):
         default_limit = 50
 
@@ -519,7 +519,7 @@ class CompanyDepartmentEmployeesApi(APIView):
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CompanyDepartmentEmployeeApi(APIView):
+class CompanyDepartmentEmployeeApi(ApiAuthMixin, APIView):
     class UpdateCompanyDepartmentEmployeeSerializer(CompanyDepartmentEmployeesApi.InputCompanyDepartmentEmployeeSerializer):
         company_department_id = serializers.IntegerField(required=False)
         employee_id = serializers.IntegerField(required=False)

@@ -33,7 +33,7 @@ class CustomCompanyMultiResponseSerializer(CustomMultiResponseSerializerBase):
         fields = ('is_success', 'data')
 
 
-class CompaniesApi(APIView):
+class CompaniesApi(ApiAuthMixin, APIView):
     class Pagination(LimitOffsetPagination):
         default_limit = 50
 
@@ -80,7 +80,7 @@ class CompaniesApi(APIView):
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CompanyApi(APIView):
+class CompanyApi(ApiAuthMixin, APIView):
     class UpdateCompanySerializer(CompaniesApi.InputCompanySerializer):
         pass
 
@@ -134,7 +134,7 @@ class CustomGroupMultiResponseSerializer(CustomMultiResponseSerializerBase):
         fields = ('is_success', 'data')
 
 
-class GroupsApi(APIView):
+class GroupsApi(ApiAuthMixin, APIView):
     class Pagination(LimitOffsetPagination):
         default_limit = 50
 
@@ -182,7 +182,7 @@ class GroupsApi(APIView):
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
 
-class GroupApi(APIView):
+class GroupApi(ApiAuthMixin, APIView):
     class UpdateGroupSerializer(GroupsApi.InputGroupSerializer):
         name = serializers.CharField(max_length=150, required=False)
 
@@ -238,7 +238,7 @@ class CustomCompanyGroupMultiResponseSerializer(CustomMultiResponseSerializerBas
         fields = ('is_success', 'data')
 
 
-class CompanyGroupsApi(APIView):
+class CompanyGroupsApi(ApiAuthMixin, APIView):
     class Pagination(LimitOffsetPagination):
         default_limit = 50
 
@@ -286,7 +286,7 @@ class CompanyGroupsApi(APIView):
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CompanyGroupApi(APIView):
+class CompanyGroupApi(ApiAuthMixin, APIView):
     class UpdateCompanyGroupSerializer(CompanyGroupsApi.InputCompanyGroupSerializer):
         company_id = serializers.IntegerField(required=False)
         group_id = serializers.IntegerField(required=False)

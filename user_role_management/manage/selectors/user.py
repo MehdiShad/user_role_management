@@ -1,6 +1,7 @@
 from typing import Dict, Literal
 from django.http import HttpRequest
 from django.db.models import QuerySet
+from django.contrib.auth.models import Permission
 from user_role_management.manage.models import BaseUser
 from user_role_management.core.exceptions import error_response, success_response
 

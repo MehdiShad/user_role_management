@@ -32,7 +32,7 @@ class CustomProcessMultiResponseSerializer(CustomMultiResponseSerializerBase):
         fields = ('is_success', 'data')
 
 
-class ProcessesApi(APIView):
+class ProcessesApi(ApiAuthMixin, APIView):
     class Pagination(LimitOffsetPagination):
         default_limit = 50
 
@@ -50,7 +50,7 @@ class ProcessesApi(APIView):
         if not isinstance(validation_result, bool):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
         try:
-            process = process_action_services.create_process(request, **serializer.validated_data)
+            process = process_action_services.create_process(request=request, **serializer.validated_data)
             if not process['is_success']:
                 raise Exception(process['message'])
             return Response(CustomProcessSingleResponseSerializer(process, context={"request": request}).data)
@@ -80,9 +80,10 @@ class ProcessesApi(APIView):
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ProcessApi(APIView):
+class ProcessApi(ApiAuthMixin, APIView):
     class UpdateProcessSerializer(ProcessesApi.InputProcessSerializer):
-        pass
+        company_id = serializers.IntegerField(required=False)
+        name = serializers.CharField(max_length=155, required=False)
 
     @extend_schema(responses=CustomProcessSingleResponseSerializer, tags=['Process'])
     def get(self, request: HttpRequest, process_id: int):
@@ -134,7 +135,7 @@ class CustomActionMultiResponseSerializer(CustomMultiResponseSerializerBase):
         fields = ('is_success', 'data')
 
 
-class ActionsApi(APIView):
+class ActionsApi(ApiAuthMixin, APIView):
     class Pagination(LimitOffsetPagination):
         default_limit = 50
 
@@ -152,7 +153,7 @@ class ActionsApi(APIView):
         if not isinstance(validation_result, bool):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
         try:
-            action = process_action_services.create_action(request, **serializer.validated_data)
+            action = process_action_services.create_action(request=request, **serializer.validated_data)
             if not action['is_success']:
                 raise Exception(action['message'])
             return Response(CustomActionSingleResponseSerializer(action, context={"request": request}).data)
@@ -182,9 +183,10 @@ class ActionsApi(APIView):
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ActionApi(APIView):
+class ActionApi(ApiAuthMixin, APIView):
     class UpdateActionSerializer(ActionsApi.InputActionSerializer):
-        pass
+        process_id = serializers.IntegerField(required=False)
+        title = serializers.CharField(max_length=155, required=False)
 
     @extend_schema(responses=CustomActionSingleResponseSerializer, tags=['Action'])
     def get(self, request: HttpRequest, action_id: int):

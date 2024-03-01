@@ -41,7 +41,7 @@ class CustomUserMultiResponseSerializer(serializers.Serializer):
         fields = ('is_success', 'data')
 
 
-class UsersApi(APIView):
+class UsersApi(ApiAuthMixin, APIView):
     class Pagination(LimitOffsetPagination):
         default_limit = 50
 
@@ -124,10 +124,8 @@ class UsersApi(APIView):
                 password=serializer.validated_data.get("password"),
             )
         except Exception as ex:
-            return Response(
-                f"Database Error {ex}",
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            response = error_response(message=str(ex))
+            return Response(response,status=status.HTTP_400_BAD_REQUEST)
         return Response(self.OutPutRegisterSerializer(user, context={"request": request}).data)
 
 
@@ -152,7 +150,7 @@ class UsersApi(APIView):
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserApi(APIView):
+class UserApi(ApiAuthMixin, APIView):
     class UpdateUserSerializer(UsersApi.InputUserSerializer):
         email = serializers.EmailField(max_length=255, required=False)
         first_name = serializers.CharField(max_length=255, required=False)
@@ -188,5 +186,5 @@ class UserApi(APIView):
             response = error_response(message=str(ex))
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
-class AssignPermission(APIView):
+class AssignPermission(ApiAuthMixin, APIView):
     pass

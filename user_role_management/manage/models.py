@@ -174,7 +174,7 @@ class BaseUser(BaseModel, AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=255, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-    type = models.CharField(max_length=2, choices=UserTypesChoices.choices, validators=[validate_user_type])
+    type = models.CharField(max_length=2, choices=UserTypesChoices.choices, default='2', validators=[validate_user_type])
     is_staff = models.BooleanField(default=False)
     last_company_logged_in = models.ForeignKey(Company, on_delete=models.DO_NOTHING, null=True, blank=True, validators=[validate_last_company_logged_in])
     company_groups = models.ManyToManyField(
@@ -188,7 +188,7 @@ class BaseUser(BaseModel, AbstractBaseUser, PermissionsMixin):
         related_name="base_user_set",
         related_query_name="base_user",
     )
-    companies = models.ManyToManyField('Company', related_name='companies')
+    companies = models.ManyToManyField('Company', blank=True, related_name='companies')
 
     objects = BaseUserManager()
 
@@ -633,7 +633,7 @@ class Process(models.Model):
 class Action(models.Model):
     process = models.ForeignKey(Process, on_delete=models.DO_NOTHING)
     title = models.CharField(max_length=255)
-    # route = models.CharField(max_length=355, null=True, blank=True)
+    route = models.CharField(max_length=355, null=True, blank=True)
 
     class Meta:
         unique_together = ['process', 'title']

@@ -17,6 +17,8 @@ urlpatterns = [
     path('permission/', permission.PermissionsApi.as_view(), name="permissions"),
     path('permission/<int:permission_id>', permission.PermissionApi.as_view(), name="permission"),
 
+    path('user_permissions/', permission.UserPermissionsApi.as_view(), name="user_permissions"),
+
     path('employee/', organization_chart.EmployeesApi.as_view(), name="employees"),
     path('employee/<int:employee_id>', organization_chart.EmployeeApi.as_view(), name="employee"),
 
