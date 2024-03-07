@@ -50,7 +50,7 @@ class ProcessesApi(ApiAuthMixin, APIView):
         if not isinstance(validation_result, bool):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
         try:
-            process = process_action_services.create_process(request=request, **serializer.validated_data)
+            process = process_action_services.create_process(request, **serializer.validated_data)
             if not process['is_success']:
                 raise Exception(process['message'])
             return Response(CustomProcessSingleResponseSerializer(process, context={"request": request}).data)

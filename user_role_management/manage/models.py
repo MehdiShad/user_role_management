@@ -122,6 +122,7 @@ class Company_group(models.Model):
     )
 
     class Meta:
+        unique_together = ['company', 'group']
         verbose_name = _("company group")
         verbose_name_plural = _("company groups")
 
@@ -294,7 +295,7 @@ class Position(models.Model):
 
 class Employee(BaseModel):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
-    personnel_code = models.CharField(max_length=15)
+    personnel_code = models.CharField(max_length=45)
     user = models.ForeignKey(BaseUser, on_delete=models.DO_NOTHING)
     positions = models.ManyToManyField(Position)
 
@@ -394,7 +395,7 @@ class Company_department(models.Model):
     department = models.ForeignKey(Department, on_delete=models.DO_NOTHING, related_name='department')
     parent_department = models.ForeignKey('self', on_delete=models.DO_NOTHING, null=True, blank=True,
                                           related_name='parent_company_department')
-    manager = models.ForeignKey(Employee, on_delete=models.DO_NOTHING)
+    manager = models.ForeignKey(Employee, on_delete=models.DO_NOTHING, null=True, blank=True)
 
     class Meta:
         unique_together = ['company', 'department']
@@ -440,7 +441,7 @@ class Company_department(models.Model):
 class Company_department_employee(models.Model):
     company_department = models.ForeignKey(Company_department, on_delete=models.DO_NOTHING)
     employee = models.ForeignKey(Employee, on_delete=models.DO_NOTHING, related_name='employee')
-    supervisor = models.ForeignKey(Employee, on_delete=models.DO_NOTHING, related_name='supervisor')
+    supervisor = models.ForeignKey(Employee, on_delete=models.DO_NOTHING, related_name='supervisor', null=True, blank=True)
 
     class Meta:
         verbose_name = _("company department employee")

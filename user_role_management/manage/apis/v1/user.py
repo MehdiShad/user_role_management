@@ -50,7 +50,7 @@ class UsersApi(ApiAuthMixin, APIView):
         first_name = serializers.CharField(max_length=255)
         last_name = serializers.CharField(max_length=255)
         type = serializers.CharField(max_length=2)
-        last_company_logged_in = serializers.IntegerField(required=False)
+        last_company_logged_in_id = serializers.IntegerField(required=False)
 
         def validate_email(self, email):
             if BaseUser.objects.filter(email=email).exists():

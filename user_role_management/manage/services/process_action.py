@@ -5,13 +5,13 @@ from django.contrib.auth.decorators import login_required, permission_required
 from user_role_management.core.exceptions import error_response, success_response
 
 
-@login_required
-@permission_required(
-    {
-        ("manage.add_process"),
-        ("manage.dg_can_start_process"),
-    }, raise_exception=True
-)
+# @login_required
+# @permission_required(
+#     {
+#         ("manage.add_process"),
+#         ("manage.dg_can_start_process"),
+#     }, raise_exception=True
+# )
 def create_process(reqeust: HttpRequest, **kwargs):
     try:
         user = reqeust.user

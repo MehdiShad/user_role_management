@@ -105,7 +105,7 @@ class ProcessAdmin(GuardedModelAdmin):
 
 @admin.register(models.Action)
 class ActionAdmin(GuardedModelAdmin):
-    list_display = ['id', 'title', 'process']
+    list_display = ['id', 'title', 'process', 'route']
     list_display_links = ['id', 'title']
 
 

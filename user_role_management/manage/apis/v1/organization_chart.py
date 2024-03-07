@@ -38,7 +38,7 @@ class EmployeesApi(ApiAuthMixin, APIView):
 
     class InputEmployeeSerializer(serializers.Serializer):
         company_id = serializers.IntegerField()
-        personnel_code = serializers.CharField(max_length=15)
+        personnel_code = serializers.CharField(max_length=45)
         user_id = serializers.IntegerField()
 
     class FilterEmployeeSerializer(serializers.Serializer):
@@ -356,7 +356,7 @@ class CompanyDepartmentsApi(ApiAuthMixin, APIView):
         company_id = serializers.IntegerField()
         department_id = serializers.IntegerField()
         parent_department_id = serializers.IntegerField(required=False)
-        manager_id = serializers.IntegerField()
+        manager_id = serializers.IntegerField(required=False)
 
     class FilterCompanyDepartmentSerializer(serializers.Serializer):
         title = serializers.CharField(max_length=155, required=False)
@@ -471,7 +471,7 @@ class CompanyDepartmentEmployeesApi(ApiAuthMixin, APIView):
     class InputCompanyDepartmentEmployeeSerializer(serializers.Serializer):
         company_department_id = serializers.IntegerField()
         employee_id = serializers.IntegerField()
-        supervisor_id = serializers.IntegerField()
+        supervisor_id = serializers.IntegerField(required=False)
 
     class FilterCompanyDepartmentEmployeeSerializer(serializers.Serializer):
         title = serializers.CharField(max_length=155, required=False)
