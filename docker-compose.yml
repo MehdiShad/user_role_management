@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3.3"
 
 services:
   db:
@@ -32,7 +32,7 @@ services:
       context: .
       dockerfile: docker/production.Dockerfile
     container_name: django_gunicorn
-    command: entrypoint.sh
+    command: docker/web_entrypoint.sh
 #    command: gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
 #    command: gunicorn config.asgi:application -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
     ports:

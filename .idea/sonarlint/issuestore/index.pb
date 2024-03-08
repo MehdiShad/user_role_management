@@ -89,8 +89,6 @@ F
 docker-compose.dev.yml,c\1\c1cf370751a1690d931dc6284fef1136444f4737
 b
 2user_role_management/common/migrations/__init__.py,a\9\a91de735fb861869dd2bc0831d45db505cb8e325
-H
-docker/web_entrypoint.sh,4\9\494f60a018caa95e1b229c85e5a64e7284a7df51
 >
 config/asgi.py,5\9\597ed58946079f795070145abd2ba40aaf51a0ae
 f
@@ -99,8 +97,6 @@ f
 config/wsgi.py,7\a\7a4aaa54a3efb112f8e2592ed1507e33ab6a7b8c
 s
 Cuser_role_management/common/migrations/0002_alter_randommodel_id.py,d\2\d2d50704c0bfb5ca9c0ce8a9ef5a570e5ead0782
-B
-docker-compose.yml,3\5\35b8c13cf2eb2a194eada000eb310d65aed53b2a
 F
 config/settings/jwt.py,8\a\8a4c2992f88dcac1d74c132f0c5f280baa7ab3c3
 9
@@ -164,8 +160,6 @@ p
 @user_role_management/guardian/testapp/tests/templates/blank.html,6\8\685eb10e983f3f000e779df400d6ac10b8f6ed14
 o
 ?user_role_management/guardian/testapp/tests/templates/list.html,0\8\081e3eb1f60ca13ea01736322ad88d9c0dba0dc2
-E
-requirements/base.txt,a\5\a53d00307871abc09608b3e4fdabb0cfc4ae7d9b
 s
 Cuser_role_management/guardian/testapp/tests/templates/dummy404.html,7\7\7765921a43a38f884d1741a4037e8d046ce9d218
 s
@@ -337,3 +331,7 @@ S
 -user_role_management/manage/selectors/user.py,0\e\0e569037cf1e1b59fa46881a82f94fa086477f11
 ^
 .user_role_management/manage/apis/v1/company.py,f\8\f8aabd2c06bbd8cf5299aa4e974b5c5f2a623134
+U
+%user_role_management/manage/models.py,6\6\66aee8f82971e128302b832f0ff7100a13943e37
+[
++user_role_management/manage/apis/v1/user.py,e\6\e63e591707ea8b1f0d39a78efe86251f6e8c69b5

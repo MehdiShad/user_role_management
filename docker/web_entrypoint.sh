@@ -5,7 +5,7 @@ echo "--> Waiting for db to be ready"
 
 # Apply database migrations
 echo "Apply database migrations"
-python manage.py makemigration
+python manage.py makemigrations
 python manage.py migrate
 python manage.py collectstatic --clear --noinput
 python manage.py collectstatic --noinput
