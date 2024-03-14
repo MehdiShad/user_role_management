@@ -10,6 +10,10 @@ def get_companies(request, **kwargs) -> QuerySet[Company]:
     return Company._get_all()
 
 
+def get_filtered_companies(request, **kwargs) -> QuerySet[Company]:
+    return
+
+
 def get_company(request: HttpRequest, id: int) -> Dict[str, Literal['is_success', True, False]]:
     obj = Company._get_by_id(id=id)
     if not isinstance(obj, Company):

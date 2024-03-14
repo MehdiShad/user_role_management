@@ -309,8 +309,6 @@ b
 .user_role_management/guardian/models/models.py,f\3\f3b958e86e213c96cc731867f707a26b5c4e485b
 Z
 *user_role_management/guardian/shortcuts.py,7\2\72ecdf05f105b6a6a73a43c37a637325a7a3339e
-g
-7user_role_management/manage/selectors/process_action.py,8\0\80095ea7681401f6fdf979e559d27ee35c331c5b
 W
 'user_role_management/core/exceptions.py,0\e\0e68e86b202b4da231df8aecd0169cdf4a9a0760
 k
@@ -319,10 +317,6 @@ c
 3user_role_management/guardian/apis/v1/permission.py,e\e\eee1bfa029160d5b5fe9b5e53aa36aa3e0873895
 a
 1user_role_management/manage/apis/v1/permission.py,e\c\ec3eced7cc774b7eb1f59433e59f1cd53bc0ea0c
-e
-5user_role_management/manage/apis/v1/process_action.py,c\9\c97a0a60d0017ac023da5ab42c4d78d0c372c7df
-c
-3user_role_management/manage/selectors/permission.py,d\e\de79ebfa4a1e4fc0eb1dbb1fe6837aef461b49bd
 E
 requirements/base.txt,a\5\a53d00307871abc09608b3e4fdabb0cfc4ae7d9b
 B

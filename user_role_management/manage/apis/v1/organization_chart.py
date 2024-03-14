@@ -70,7 +70,7 @@ class EmployeesApi(ApiAuthMixin, APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            employees = organization_chart_selector.get_employees(request)
+            employees = organization_chart_selector.get_filtered_employees(request, filters=filter_serializer.validated_data)
             return get_paginated_response_context(
                 request=request,
                 pagination_class=self.Pagination,
@@ -150,7 +150,7 @@ class CompanyPositionsApi(ApiAuthMixin, APIView):
         title = serializers.CharField(max_length=155)
         abbreviation = serializers.CharField(max_length=55, required=False)
 
-    class FilterCompanyPositionSerializer(serializers.Serializer):
+    class FilterCompanyPositionSerializer(InputCompanyPositionSerializer):
         title = serializers.CharField(max_length=155, required=False)
 
     @extend_schema(request=InputCompanyPositionSerializer, responses=CustomCompanyPositionSingleResponseSerializer, tags=['Position'])
@@ -177,7 +177,7 @@ class CompanyPositionsApi(ApiAuthMixin, APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            positions = organization_chart_selector.get_positions(request)
+            positions = organization_chart_selector.get_filtered_positions(request, filters=filter_serializer.validated_data)
             return get_paginated_response_context(
                 request=request,
                 pagination_class=self.Pagination,
@@ -288,7 +288,7 @@ class CompanyDepartmentsApi(ApiAuthMixin, APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            company_departments = organization_chart_selector.get_company_departments(request)
+            company_departments = organization_chart_selector.get_filtered_company_departments(request, filters=filter_serializer.validated_data)
             return get_paginated_response_context(
                 request=request,
                 pagination_class=self.Pagination,
@@ -405,7 +405,7 @@ class CompanyDepartmentEmployeesApi(ApiAuthMixin, APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            company_department_employees = organization_chart_selector.get_company_department_employees(request)
+            company_department_employees = organization_chart_selector.get_filtered_company_department_employees(request, filters=filter_serializer.validated_data)
             return get_paginated_response_context(
                 request=request,
                 pagination_class=self.Pagination,
@@ -515,7 +515,7 @@ class CompanyDepartmentPositionsApi(ApiAuthMixin, APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            company_department_positions = organization_chart_selector.get_company_department_positions(request)
+            company_department_positions = organization_chart_selector.get_filtered_company_department_positions(request, filters=filter_serializer.validated_data)
             return get_paginated_response_context(
                 request=request,
                 pagination_class=self.Pagination,
@@ -554,8 +554,7 @@ class CompanyDepartmentPositionApi(ApiAuthMixin, APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            company_department_position = organization_chart_services.update_company_department_position(request=request, id=company_department_position_id,
-                                                                   **serializer.validated_data)
+            company_department_position = organization_chart_services.update_company_department_position(request=request, id=company_department_position_id, **serializer.validated_data)
             if not company_department_position['is_success']:
                 raise Exception(company_department_position['message'])
             return Response(CustomCompanyDepartmentPositionSingleResponseSerializer(company_department_position, context={"request": request}).data)

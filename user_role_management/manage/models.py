@@ -97,6 +97,7 @@ class Company(BaseModel):
         except:
             return None
 
+    @classmethod
     def __str__(self):
         return str(self.title)
 
@@ -286,6 +287,11 @@ class Company_position(models.Model):
         except:
             return None
 
+    @classmethod
+    def filtered_by_company(cls, company: Company) -> QuerySet['Company_position']:
+        company_id = company.id if company else None
+        return cls.objects.filter(company_id=company_id)
+
     def __str__(self):
         return str(self.title)
 
@@ -337,6 +343,11 @@ class Employee(BaseModel):
         except:
             return None
 
+    @classmethod
+    def filtered_by_company(cls, company: Company) -> QuerySet['Company_position']:
+        company_id = company.id if company else None
+        return cls.objects.filter(company_id=company_id)
+
     def __str__(self):
         return f"{self.company.title}-{self.user.email}"
 
@@ -383,6 +394,11 @@ class Company_department(models.Model):
             return cls.objects.get(id=id)
         except:
             return None
+
+    @classmethod
+    def filtered_by_company(cls, company: Company) -> QuerySet['Company_position']:
+        company_id = company.id if company else None
+        return cls.objects.filter(company_id=company_id)
 
     def __str__(self):
         return f"{self.company.title}-{self.department}"
@@ -434,6 +450,11 @@ class Company_department_employee(models.Model):
         except:
             return None
 
+    @classmethod
+    def filtered_by_company(cls, company: Company) -> QuerySet['Company_department_employee']:
+        company_id = company.id if company else None
+        return cls.objects.filter(company_department__company_id=company_id)
+
     def __str__(self):
         return f"{self.company_department}-{self.employee.user.email}"
 
@@ -477,6 +498,10 @@ class Company_department_position(models.Model):
             return cls.objects.get(id=id)
         except:
             return None
+
+    def filtered_by_company(cls, company: Company) -> QuerySet['Company_department_position']:
+        company_id = company.id if company else None
+        return cls.objects.filter(company_department__company_id=company_id)
 
     def __str__(self):
         return f"{self.company_department.department}-{self.company_position.title}"
@@ -618,6 +643,11 @@ class Process(models.Model):
         except:
             return None
 
+    @classmethod
+    def filtered_by_company(cls, company: Company) -> QuerySet['Process']:
+        company_id = company.id if company else None
+        return cls.objects.filter(company_id=company_id)
+
     def __str__(self):
         return f"{self.company}_{self.name}"
 
@@ -662,6 +692,12 @@ class Action(models.Model):
             return cls.objects.get(id=id)
         except:
             return None
+    
+    
+    @classmethod
+    def filtered_by_company(cls, company: Company) -> QuerySet['Action']:
+        company_id = company.id if company else None
+        return cls.objects.filter(process__company_id=company_id)
 
     def __str__(self):
         return f"{self.process}_{self.name}"

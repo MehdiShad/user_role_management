@@ -67,7 +67,7 @@ class ProcessesApi(ApiAuthMixin, APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            processes = process_action_selector.get_processes(request)
+            processes = process_action_selector.get_filtered_processes(request, filters=filter_serializer.validated_data)
             return get_paginated_response_context(
                 request=request,
                 pagination_class=self.Pagination,
@@ -170,7 +170,7 @@ class ActionsApi(ApiAuthMixin, APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            actions = process_action_selector.get_actions(request)
+            actions = process_action_selector.get_filtered_actions(request, filters=filter_serializer.validated_data)
             return get_paginated_response_context(
                 request=request,
                 pagination_class=self.Pagination,
@@ -199,7 +199,6 @@ class ActionApi(ApiAuthMixin, APIView):
             response = error_response(message=str(ex))
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
-    get.get_operation_id = 'api_v1_manage_action_retrieve'
 
     @extend_schema(request=UpdateActionSerializer, responses=CustomActionSingleResponseSerializer, tags=['Action'])
     def put(self, request: HttpRequest, action_id: int):
