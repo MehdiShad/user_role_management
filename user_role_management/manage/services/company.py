@@ -2,7 +2,7 @@ from django.http import HttpRequest
 from typing import Dict, Literal
 from django.contrib.auth.models import Group
 from user_role_management.utils.services import create_fields
-from user_role_management.manage.models import Company, Company_group
+from user_role_management.manage.models import Company, Company_group, Company_branch
 from user_role_management.core.exceptions import error_response, success_response
 
 
@@ -40,3 +40,11 @@ def create_company_group(*, request: HttpRequest, **kwargs) -> Dict[str, Literal
 
 def update_company_group(*, request: HttpRequest, id: int, **kwargs) -> Dict[str, Literal['is_success', True, False]]:
     return Company_group._update(id=id, **kwargs)
+
+
+def create_company_branch(*, request: HttpRequest, **kwargs) -> Dict[str, Literal['is_success', True, False]]:
+    return Company_branch._create(**kwargs)
+
+
+def update_company_branch(*, request: HttpRequest, id: int, **kwargs) -> Dict[str, Literal['is_success', True, False]]:
+    return Company_branch._update(id=id, **kwargs)

@@ -55,22 +55,22 @@ class EmployeeAdmin(GuardedModelAdmin):
     list_display_links = ['id', 'personnel_code']
 
 
-@admin.register(models.Position)
-class PositionAdmin(GuardedModelAdmin):
-    list_display = ['id', 'title', 'abbreviation']
-    list_display_links = ['id', 'title']
-
-
-@admin.register(models.Department)
-class DepartmentAdmin(GuardedModelAdmin):
-    list_display = ['id', 'title', 'abbreviation']
-    list_display_links = ['id', 'title']
+@admin.register(models.Company_position)
+class CompanyPositionAdmin(GuardedModelAdmin):
+    list_display = ['id', 'company_id', 'title', 'abbreviation']
+    list_display_links = ['id', 'company_id', 'title']
 
 
 @admin.register(models.Company_department)
 class CompanyDepartmentsAdmin(GuardedModelAdmin):
     list_display = ['id', 'company', 'department', 'parent_department', 'manager']
     list_display_links = ['id', 'company']
+
+
+@admin.register(models.Company_department_position)
+class CompanyDepartmentPositionsAdmin(GuardedModelAdmin):
+    list_display = ['id', 'company_department_id', 'company_position_id']
+    list_display_links = ['id', 'company_department_id', 'company_position_id']
 
 
 @admin.register(models.Company_department_employee)
@@ -105,8 +105,8 @@ class ProcessAdmin(GuardedModelAdmin):
 
 @admin.register(models.Action)
 class ActionAdmin(GuardedModelAdmin):
-    list_display = ['id', 'title', 'process', 'route']
-    list_display_links = ['id', 'title']
+    list_display = ['id', 'name', 'code_name', 'process', 'route']
+    list_display_links = ['id', 'name', 'code_name']
 
 
 @admin.register(models.Order)

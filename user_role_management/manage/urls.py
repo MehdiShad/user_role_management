@@ -14,6 +14,9 @@ urlpatterns = [
     path('company_group/', company.CompanyGroupsApi.as_view(), name="company_groups"),
     path('company_group/<int:company_group_id>', company.CompanyGroupApi.as_view(), name="company_group"),
 
+    path('company_branch/', company.CompanyBranchesApi.as_view(), name="company_branch"),
+    path('company_branch/<int:company_branch_id>', company.CompanyBranchApi.as_view(), name="company_branch"),
+
     path('permission/', permission.PermissionsApi.as_view(), name="permissions"),
     path('permission/<int:permission_id>', permission.PermissionApi.as_view(), name="permission"),
 
@@ -22,17 +25,17 @@ urlpatterns = [
     path('employee/', organization_chart.EmployeesApi.as_view(), name="employees"),
     path('employee/<int:employee_id>', organization_chart.EmployeeApi.as_view(), name="employee"),
 
-    path('position/', organization_chart.PositionsApi.as_view(), name="positions"),
-    path('position/<int:position_id>', organization_chart.PositionApi.as_view(), name="position"),
-
-    path('department/', organization_chart.DepartmentsApi.as_view(), name="departments"),
-    path('department/<int:department_id>', organization_chart.DepartmentApi.as_view(), name="department"),
+    path('Company_position/', organization_chart.CompanyPositionsApi.as_view(), name="Company_positions"),
+    path('Company_position/<int:Company_position_id>', organization_chart.CompanyPositionApi.as_view(), name="Company_position"),
 
     path('company_department/', organization_chart.CompanyDepartmentsApi.as_view(), name="company_departments"),
     path('company_department/<int:company_department_id>', organization_chart.CompanyDepartmentApi.as_view(), name="company_department"),
 
     path('company_department_employee/', organization_chart.CompanyDepartmentEmployeesApi.as_view(), name="company_department_employees"),
     path('company_department_employee/<int:company_department_employee_id>', organization_chart.CompanyDepartmentEmployeeApi.as_view(), name="company_department_employee"),
+
+    path('company_department_position/', organization_chart.CompanyDepartmentPositionsApi.as_view(), name="company_department_positions"),
+    path('company_department_position/<int:company_department_position_id>', organization_chart.CompanyDepartmentPositionApi.as_view(), name="company_department_position"),
 
     path('process/', process_action.ProcessesApi.as_view(), name="processes"),
     path('process/<int:process_id>', process_action.ProcessApi.as_view(), name="process"),

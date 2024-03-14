@@ -5,6 +5,7 @@ from rest_framework import status, serializers
 from drf_spectacular.utils import extend_schema
 from user_role_management.manage import models
 from user_role_management.api.mixins import ApiAuthMixin
+from user_role_management.core.permission import has_action_perm
 from user_role_management.manage.services import organization_chart as organization_chart_services
 from user_role_management.manage.selectors import organization_chart as organization_chart_selector
 from user_role_management.api.pagination import LimitOffsetPagination, get_paginated_response_context
@@ -45,6 +46,7 @@ class EmployeesApi(ApiAuthMixin, APIView):
         personnel_code = serializers.CharField(max_length=15, required=False)
 
     @extend_schema(request=InputEmployeeSerializer, responses=CustomEmployeeSingleResponseSerializer, tags=['Employee'])
+    @has_action_perm(process_name='user_management', action_name='can_add_employee', permission_codename='dg_can_do_this_action')
     def post(self, request: HttpRequest):
         serializer = self.InputEmployeeSerializer(data=request.data)
         validation_result = handle_validation_error(serializer=serializer)
@@ -120,40 +122,40 @@ class EmployeeApi(ApiAuthMixin, APIView):
 # =====================================================
 
 
-class OutPutPositionSerializer(serializers.ModelSerializer):
+class OutPutCompanyPositionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Position
+        model = models.Company_position
         fields = '__all__'
 
 
-class CustomPositionSingleResponseSerializer(CustomSingleResponseSerializerBase):
-    data = OutPutPositionSerializer()
+class CustomCompanyPositionSingleResponseSerializer(CustomSingleResponseSerializerBase):
+    data = OutPutCompanyPositionSerializer()
 
     class Meta:
         fields = ('is_success', 'data')
 
 
-class CustomPositionMultiResponseSerializer(CustomMultiResponseSerializerBase):
-    data = serializers.ListSerializer(child=OutPutPositionSerializer())
+class CustomCompanyPositionMultiResponseSerializer(CustomMultiResponseSerializerBase):
+    data = serializers.ListSerializer(child=OutPutCompanyPositionSerializer())
 
     class Meta:
         fields = ('is_success', 'data')
 
 
-class PositionsApi(ApiAuthMixin, APIView):
+class CompanyPositionsApi(ApiAuthMixin, APIView):
     class Pagination(LimitOffsetPagination):
         default_limit = 50
 
-    class InputPositionSerializer(serializers.Serializer):
+    class InputCompanyPositionSerializer(serializers.Serializer):
         title = serializers.CharField(max_length=155)
         abbreviation = serializers.CharField(max_length=55, required=False)
 
-    class FilterPositionSerializer(serializers.Serializer):
+    class FilterCompanyPositionSerializer(serializers.Serializer):
         title = serializers.CharField(max_length=155, required=False)
 
-    @extend_schema(request=InputPositionSerializer, responses=CustomPositionSingleResponseSerializer, tags=['Position'])
+    @extend_schema(request=InputCompanyPositionSerializer, responses=CustomCompanyPositionSingleResponseSerializer, tags=['Position'])
     def post(self, request: HttpRequest):
-        serializer = self.InputPositionSerializer(data=request.data)
+        serializer = self.InputCompanyPositionSerializer(data=request.data)
         validation_result = handle_validation_error(serializer=serializer)
         if not isinstance(validation_result, bool):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
@@ -161,15 +163,15 @@ class PositionsApi(ApiAuthMixin, APIView):
             position = organization_chart_services.create_position(request, **serializer.validated_data)
             if not position['is_success']:
                 raise Exception(position['message'])
-            return Response(CustomPositionSingleResponseSerializer(position, context={"request": request}).data)
+            return Response(CustomCompanyPositionSingleResponseSerializer(position, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
-    @extend_schema(parameters=[FilterPositionSerializer], responses=CustomPositionMultiResponseSerializer,
+    @extend_schema(parameters=[FilterCompanyPositionSerializer], responses=CustomCompanyPositionMultiResponseSerializer,
                    tags=['Position'])
     def get(self, request: HttpRequest):
-        filter_serializer = self.FilterPositionSerializer(data=request.query_params)
+        filter_serializer = self.FilterCompanyPositionSerializer(data=request.query_params)
         validation_result = handle_validation_error(serializer=filter_serializer)
         if not isinstance(validation_result, bool):  # if validation_result response is not boolean
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
@@ -179,7 +181,7 @@ class PositionsApi(ApiAuthMixin, APIView):
             return get_paginated_response_context(
                 request=request,
                 pagination_class=self.Pagination,
-                serializer_class=OutPutPositionSerializer,
+                serializer_class=OutPutCompanyPositionSerializer,
                 queryset=positions,
                 view=self,
             )
@@ -188,25 +190,25 @@ class PositionsApi(ApiAuthMixin, APIView):
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
 
-class PositionApi(ApiAuthMixin, APIView):
-    class UpdatePositionSerializer(PositionsApi.InputPositionSerializer):
+class CompanyPositionApi(ApiAuthMixin, APIView):
+    class UpdateCompanyPositionSerializer(CompanyPositionsApi.InputCompanyPositionSerializer):
         title = serializers.CharField(max_length=155, required=False)
 
-    @extend_schema(responses=CustomPositionSingleResponseSerializer, tags=['Position'])
+    @extend_schema(responses=CustomCompanyPositionSingleResponseSerializer, tags=['Position'])
     def get(self, request: HttpRequest, position_id: int):
         try:
             position = organization_chart_selector.get_position(request=request, id=position_id)
             if not position['is_success']:
                 raise Exception(position['message'])
-            return Response(CustomPositionSingleResponseSerializer(position, context={"request": request}).data)
+            return Response(CustomCompanyPositionSingleResponseSerializer(position, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
-    @extend_schema(request=UpdatePositionSerializer, responses=CustomPositionSingleResponseSerializer,
+    @extend_schema(request=UpdateCompanyPositionSerializer, responses=CustomCompanyPositionSingleResponseSerializer,
                    tags=['Position'])
     def put(self, request: HttpRequest, position_id: int):
-        serializer = self.UpdatePositionSerializer(data=request.data)
+        serializer = self.UpdateCompanyPositionSerializer(data=request.data)
         validation_result = handle_validation_error(serializer=serializer)
         if not isinstance(validation_result, bool):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
@@ -216,110 +218,7 @@ class PositionApi(ApiAuthMixin, APIView):
                                                                    **serializer.validated_data)
             if not position['is_success']:
                 raise Exception(position['message'])
-            return Response(CustomPositionSingleResponseSerializer(position, context={"request": request}).data)
-        except Exception as ex:
-            response = error_response(message=str(ex))
-            return Response(response, status=status.HTTP_400_BAD_REQUEST)
-
-
-class OutPutDepartmentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Department
-        fields = '__all__'
-
-
-class CustomDepartmentSingleResponseSerializer(CustomSingleResponseSerializerBase):
-    data = OutPutDepartmentSerializer()
-
-    class Meta:
-        fields = ('is_success', 'data')
-
-
-class CustomDepartmentMultiResponseSerializer(CustomMultiResponseSerializerBase):
-    data = serializers.ListSerializer(child=OutPutDepartmentSerializer())
-
-    class Meta:
-        fields = ('is_success', 'data')
-
-
-class DepartmentsApi(ApiAuthMixin, APIView):
-    class Pagination(LimitOffsetPagination):
-        default_limit = 50
-
-    class FilterDepartmentSerializer(serializers.Serializer):
-        title = serializers.CharField(max_length=155, required=False)
-
-    class InputDepartmentSerializer(serializers.Serializer):
-        title = serializers.CharField(max_length=155)
-        abbreviation = serializers.CharField(max_length=55, required=False)
-
-    @extend_schema(request=InputDepartmentSerializer, responses=CustomDepartmentSingleResponseSerializer,
-                   tags=['Department'])
-    def post(self, request: HttpRequest):
-        serializer = self.InputDepartmentSerializer(data=request.data)
-        validation_result = handle_validation_error(serializer=serializer)
-        if not isinstance(validation_result, bool):
-            return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            department = organization_chart_services.create_department(request, **serializer.validated_data)
-            if not department['is_success']:
-                raise Exception(department['message'])
-            return Response(CustomDepartmentSingleResponseSerializer(department, context={"request": request}).data)
-        except Exception as ex:
-            response = error_response(message=str(ex))
-            return Response(response, status=status.HTTP_400_BAD_REQUEST)
-
-    @extend_schema(parameters=[FilterDepartmentSerializer], responses=CustomDepartmentMultiResponseSerializer,
-                   tags=['Department'])
-    def get(self, request: HttpRequest):
-        filter_serializer = self.FilterDepartmentSerializer(data=request.query_params)
-        validation_result = handle_validation_error(serializer=filter_serializer)
-        if not isinstance(validation_result, bool):  # if validation_result response is not boolean
-            return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            departments = organization_chart_selector.get_departments(request)
-            return get_paginated_response_context(
-                request=request,
-                pagination_class=self.Pagination,
-                serializer_class=OutPutDepartmentSerializer,
-                queryset=departments,
-                view=self,
-            )
-        except Exception as ex:
-            response = error_response(message=str(ex))
-            return Response(response, status=status.HTTP_400_BAD_REQUEST)
-
-
-class DepartmentApi(ApiAuthMixin, APIView):
-    class UpdateDepartmentSerializer(DepartmentsApi.InputDepartmentSerializer):
-        title = serializers.CharField(max_length=155, required=False)
-
-    @extend_schema(responses=CustomDepartmentSingleResponseSerializer, tags=['Department'])
-    def get(self, request: HttpRequest, department_id: int):
-        try:
-            department = organization_chart_selector.get_department(request=request, id=department_id)
-            if not department['is_success']:
-                raise Exception(department['message'])
-            return Response(CustomDepartmentSingleResponseSerializer(department, context={"request": request}).data)
-        except Exception as ex:
-            response = error_response(message=str(ex))
-            return Response(response, status=status.HTTP_400_BAD_REQUEST)
-
-    @extend_schema(request=UpdateDepartmentSerializer, responses=CustomDepartmentSingleResponseSerializer,
-                   tags=['Department'])
-    def put(self, request: HttpRequest, department_id: int):
-        serializer = self.UpdateDepartmentSerializer(data=request.data)
-        validation_result = handle_validation_error(serializer=serializer)
-        if not isinstance(validation_result, bool):
-            return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            department = organization_chart_services.update_department(request=request, id=department_id,
-                                                                       **serializer.validated_data)
-            if not department['is_success']:
-                raise Exception(department['message'])
-            return Response(CustomDepartmentSingleResponseSerializer(department, context={"request": request}).data)
+            return Response(CustomCompanyPositionSingleResponseSerializer(position, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
@@ -362,7 +261,7 @@ class CompanyDepartmentsApi(ApiAuthMixin, APIView):
         title = serializers.CharField(max_length=155, required=False)
 
     @extend_schema(request=InputCompanyDepartmentSerializer, responses=CustomCompanyDepartmentSingleResponseSerializer,
-                   tags=['CompanyDepartment'])
+                   tags=['Department'])
     def post(self, request: HttpRequest):
         serializer = self.InputCompanyDepartmentSerializer(data=request.data)
         validation_result = handle_validation_error(serializer=serializer)
@@ -381,7 +280,7 @@ class CompanyDepartmentsApi(ApiAuthMixin, APIView):
 
     @extend_schema(parameters=[FilterCompanyDepartmentSerializer],
                    responses=CustomCompanyDepartmentMultiResponseSerializer,
-                   tags=['CompanyDepartment'])
+                   tags=['Department'])
     def get(self, request: HttpRequest):
         filter_serializer = self.FilterCompanyDepartmentSerializer(data=request.query_params)
         validation_result = handle_validation_error(serializer=filter_serializer)
@@ -408,7 +307,7 @@ class CompanyDepartmentApi(ApiAuthMixin, APIView):
         department_id = serializers.IntegerField(required=False)
         manager_id = serializers.IntegerField(required=False)
 
-    @extend_schema(responses=CustomCompanyDepartmentSingleResponseSerializer, tags=['CompanyDepartment'])
+    @extend_schema(responses=CustomCompanyDepartmentSingleResponseSerializer, tags=['Department'])
     def get(self, request: HttpRequest, company_department_id: int):
         try:
             company_department = organization_chart_selector.get_company_department(request=request,
@@ -422,7 +321,7 @@ class CompanyDepartmentApi(ApiAuthMixin, APIView):
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(request=UpdateCompanyDepartmentSerializer, responses=CustomCompanyDepartmentSingleResponseSerializer,
-                   tags=['CompanyDepartment'])
+                   tags=['Department'])
     def put(self, request: HttpRequest, company_department_id: int):
         serializer = self.UpdateCompanyDepartmentSerializer(data=request.data)
         validation_result = handle_validation_error(serializer=serializer)
@@ -478,7 +377,7 @@ class CompanyDepartmentEmployeesApi(ApiAuthMixin, APIView):
 
     @extend_schema(request=InputCompanyDepartmentEmployeeSerializer,
                    responses=CustomCompanyDepartmentEmployeeSingleResponseSerializer,
-                   tags=['CompanyDepartmentEmployee'])
+                   tags=['DepartmentEmployee'])
     def post(self, request: HttpRequest):
         serializer = self.InputCompanyDepartmentEmployeeSerializer(data=request.data)
         validation_result = handle_validation_error(serializer=serializer)
@@ -498,7 +397,7 @@ class CompanyDepartmentEmployeesApi(ApiAuthMixin, APIView):
 
     @extend_schema(parameters=[FilterCompanyDepartmentEmployeeSerializer],
                    responses=CustomCompanyDepartmentEmployeeMultiResponseSerializer,
-                   tags=['CompanyDepartmentEmployee'])
+                   tags=['DepartmentEmployee'])
     def get(self, request: HttpRequest):
         filter_serializer = self.FilterCompanyDepartmentEmployeeSerializer(data=request.query_params)
         validation_result = handle_validation_error(serializer=filter_serializer)
@@ -525,7 +424,7 @@ class CompanyDepartmentEmployeeApi(ApiAuthMixin, APIView):
         employee_id = serializers.IntegerField(required=False)
         supervisor_id = serializers.IntegerField(required=False)
 
-    @extend_schema(responses=CustomCompanyDepartmentEmployeeSingleResponseSerializer,tags=['CompanyDepartmentEmployee'])
+    @extend_schema(responses=CustomCompanyDepartmentEmployeeSingleResponseSerializer,tags=['DepartmentEmployee'])
     def get(self, request: HttpRequest, company_department_employee_id: int):
         try:
             company_department_employee = organization_chart_selector.get_company_department_employee(request=request, id=company_department_employee_id)
@@ -536,7 +435,7 @@ class CompanyDepartmentEmployeeApi(ApiAuthMixin, APIView):
             response = error_response(message=str(ex))
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
-    @extend_schema(request=UpdateCompanyDepartmentEmployeeSerializer, responses=CustomCompanyDepartmentEmployeeSingleResponseSerializer, tags=['CompanyDepartmentEmployee'])
+    @extend_schema(request=UpdateCompanyDepartmentEmployeeSerializer, responses=CustomCompanyDepartmentEmployeeSingleResponseSerializer, tags=['DepartmentEmployee'])
     def put(self, request: HttpRequest, company_department_employee_id: int):
         serializer = self.UpdateCompanyDepartmentEmployeeSerializer(data=request.data)
         validation_result = handle_validation_error(serializer=serializer)
@@ -550,6 +449,116 @@ class CompanyDepartmentEmployeeApi(ApiAuthMixin, APIView):
                 raise Exception(company_department_employee['message'])
             return Response(CustomCompanyDepartmentEmployeeSingleResponseSerializer(company_department_employee,
                                                                                     context={"request": request}).data)
+        except Exception as ex:
+            response = error_response(message=str(ex))
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+# ===============================================================================
+
+
+
+class OutPutCompanyDepartmentPositionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Company_department_position
+        fields = '__all__'
+
+
+class CustomCompanyDepartmentPositionSingleResponseSerializer(CustomSingleResponseSerializerBase):
+    data = OutPutCompanyDepartmentPositionSerializer()
+
+    class Meta:
+        fields = ('is_success', 'data')
+
+
+class CustomCompanyDepartmentPositionMultiResponseSerializer(CustomMultiResponseSerializerBase):
+    data = serializers.ListSerializer(child=OutPutCompanyDepartmentPositionSerializer())
+
+    class Meta:
+        fields = ('is_success', 'data')
+
+
+class CompanyDepartmentPositionsApi(ApiAuthMixin, APIView):
+    class Pagination(LimitOffsetPagination):
+        default_limit = 50
+
+    class InputCompanyDepartmentPositionSerializer(serializers.Serializer):
+        company_id = serializers.IntegerField()
+        personnel_code = serializers.CharField(max_length=45)
+        user_id = serializers.IntegerField()
+
+    class FilterCompanyDepartmentPositionSerializer(serializers.Serializer):
+        personnel_code = serializers.CharField(max_length=15, required=False)
+
+    @extend_schema(request=InputCompanyDepartmentPositionSerializer, responses=CustomCompanyDepartmentPositionSingleResponseSerializer, tags=['DepartmentPosition'])
+    def post(self, request: HttpRequest):
+        serializer = self.InputCompanyDepartmentPositionSerializer(data=request.data)
+        validation_result = handle_validation_error(serializer=serializer)
+        if not isinstance(validation_result, bool):
+            return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            company_department_position = organization_chart_services.create_company_department_position(request, **serializer.validated_data)
+            if not company_department_position['is_success']:
+                raise Exception(company_department_position['message'])
+            return Response(CustomCompanyDepartmentPositionSingleResponseSerializer(company_department_position, context={"request": request}).data)
+        except Exception as ex:
+            response = error_response(message=str(ex))
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(parameters=[FilterCompanyDepartmentPositionSerializer], responses=CustomCompanyDepartmentPositionMultiResponseSerializer,
+                   tags=['DepartmentPosition'])
+    def get(self, request: HttpRequest):
+        filter_serializer = self.FilterCompanyDepartmentPositionSerializer(data=request.query_params)
+        validation_result = handle_validation_error(serializer=filter_serializer)
+        if not isinstance(validation_result, bool):  # if validation_result response is not boolean
+            return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            company_department_positions = organization_chart_selector.get_company_department_positions(request)
+            return get_paginated_response_context(
+                request=request,
+                pagination_class=self.Pagination,
+                serializer_class=OutPutCompanyDepartmentPositionSerializer,
+                queryset=company_department_positions,
+                view=self,
+            )
+        except Exception as ex:
+            response = error_response(message=str(ex))
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CompanyDepartmentPositionApi(ApiAuthMixin, APIView):
+    class UpdateCompanyDepartmentPositionSerializer(CompanyDepartmentPositionsApi.InputCompanyDepartmentPositionSerializer):
+        company_id = serializers.IntegerField(required=False)
+        personnel_code = serializers.CharField(max_length=15, required=False)
+        user_id = serializers.IntegerField(required=False)
+
+    @extend_schema(responses=CustomCompanyDepartmentPositionSingleResponseSerializer, tags=['DepartmentPosition'])
+    def get(self, request: HttpRequest, company_department_position_id: int):
+        try:
+            company_department_position = organization_chart_selector.get_company_department_position(request=request, id=company_department_position_id)
+            if not company_department_position['is_success']:
+                raise Exception(company_department_position['message'])
+            return Response(CustomCompanyDepartmentPositionSingleResponseSerializer(company_department_position, context={"request": request}).data)
+        except Exception as ex:
+            response = error_response(message=str(ex))
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(request=UpdateCompanyDepartmentPositionSerializer, responses=CustomCompanyDepartmentPositionSingleResponseSerializer,
+                   tags=['DepartmentPosition'])
+    def put(self, request: HttpRequest, company_department_position_id: int):
+        serializer = self.UpdateCompanyDepartmentPositionSerializer(data=request.data)
+        validation_result = handle_validation_error(serializer=serializer)
+        if not isinstance(validation_result, bool):
+            return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            company_department_position = organization_chart_services.update_company_department_position(request=request, id=company_department_position_id,
+                                                                   **serializer.validated_data)
+            if not company_department_position['is_success']:
+                raise Exception(company_department_position['message'])
+            return Response(CustomCompanyDepartmentPositionSingleResponseSerializer(company_department_position, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
             return Response(response, status=status.HTTP_400_BAD_REQUEST)

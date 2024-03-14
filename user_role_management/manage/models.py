@@ -250,13 +250,14 @@ class Assigned_customer(models.Model):
         return f"{self.user.email}: {self.customer.email}"
 
 
-class Position(models.Model):
+class Company_position(models.Model):
+    company_id = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     title = models.CharField(max_length=255, unique=True)
     abbreviation = models.CharField(max_length=55, null=True, blank=True)
 
     class Meta:
-        verbose_name = _("position")
-        verbose_name_plural = _("Positions")
+        verbose_name = _("Company position")
+        verbose_name_plural = _("Company Positions")
 
     @classmethod
     def _create(cls, **kwargs: Dict[str, Any]) -> Dict[str, Literal['is_success', True, False]]:
@@ -279,11 +280,11 @@ class Position(models.Model):
             return error_response(message=str(ex))
 
     @classmethod
-    def _get_all(cls) -> QuerySet['Position']:
+    def _get_all(cls) -> QuerySet['Company_position']:
         return cls.objects.all()
 
     @classmethod
-    def _get_by_id(cls, id: int) -> Optional['Position']:
+    def _get_by_id(cls, id: int) -> Optional['Company_position']:
         try:
             return cls.objects.get(id=id)
         except:
@@ -297,7 +298,7 @@ class Employee(BaseModel):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     personnel_code = models.CharField(max_length=45)
     user = models.ForeignKey(BaseUser, on_delete=models.DO_NOTHING)
-    positions = models.ManyToManyField(Position)
+    positions = models.ManyToManyField(Company_position)
 
     class Meta:
         verbose_name = _("employee")
@@ -344,55 +345,9 @@ class Employee(BaseModel):
         return f"{self.company.title}-{self.user.email}"
 
 
-
-
-
-class Department(BaseModel):
-    title = models.CharField(max_length=255, unique=True)
-    abbreviation = models.CharField(max_length=55, null=True, blank=True)
-
-    class Meta:
-        verbose_name = _("department")
-        verbose_name_plural = _("departments")
-
-    @classmethod
-    def _create(cls, **kwargs: Dict[str, Any]) -> Dict[str, Literal['is_success', True, False]]:
-        try:
-            fields = create_fields(**kwargs)
-            new = cls.objects.create(**fields)
-            return success_response(data=new)
-        except Exception as ex:
-            return error_response(message=str(ex))
-
-    @classmethod
-    def _update(cls, id: int, **kwargs) -> Dict[str, Literal['is_success', True, False]]:
-        try:
-            obj = cls.objects.get(id=id)
-            fields = create_fields(**kwargs)
-            obj.__dict__.update(**fields)
-            obj.save()
-            return success_response(data=obj)
-        except Exception as ex:
-            return error_response(message=str(ex))
-
-    @classmethod
-    def _get_all(cls) -> QuerySet['Department']:
-        return cls.objects.all()
-
-    @classmethod
-    def _get_by_id(cls, id: int) -> Optional['Department']:
-        try:
-            return cls.objects.get(id=id)
-        except:
-            return None
-
-    def __str__(self):
-        return str(self.title)
-
-
 class Company_department(models.Model):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
-    department = models.ForeignKey(Department, on_delete=models.DO_NOTHING, related_name='department')
+    department = models.CharField(max_length=255)
     parent_department = models.ForeignKey('self', on_delete=models.DO_NOTHING, null=True, blank=True,
                                           related_name='parent_company_department')
     manager = models.ForeignKey(Employee, on_delete=models.DO_NOTHING, null=True, blank=True)
@@ -423,11 +378,11 @@ class Company_department(models.Model):
             return error_response(message=str(ex))
 
     @classmethod
-    def _get_all(cls) -> QuerySet['Department']:
+    def _get_all(cls) -> QuerySet['Company_department']:
         return cls.objects.all()
 
     @classmethod
-    def _get_by_id(cls, id: int) -> Optional['Department']:
+    def _get_by_id(cls, id: int) -> Optional['Company_department']:
         try:
             return cls.objects.get(id=id)
         except:
@@ -435,7 +390,7 @@ class Company_department(models.Model):
 
 
     def __str__(self):
-        return f"{self.company.title}-{self.department.title}"
+        return f"{self.company.title}-{self.department}"
 
 
 class Company_department_employee(models.Model):
@@ -474,11 +429,11 @@ class Company_department_employee(models.Model):
             return error_response(message=str(ex))
 
     @classmethod
-    def _get_all(cls) -> QuerySet['Department']:
+    def _get_all(cls) -> QuerySet['Company_department_employee']:
         return cls.objects.all()
 
     @classmethod
-    def _get_by_id(cls, id: int) -> Optional['Department']:
+    def _get_by_id(cls, id: int) -> Optional['Company_department_employee']:
         try:
             return cls.objects.get(id=id)
         except:
@@ -488,6 +443,50 @@ class Company_department_employee(models.Model):
     def __str__(self):
         return f"{self.company_department}-{self.employee.user.email}"
 
+
+class Company_department_position(models.Model):
+    company_department = models.ForeignKey(Company_department, on_delete=models.DO_NOTHING)
+    company_position = models.ForeignKey(Company_position, on_delete=models.DO_NOTHING)
+
+    class Meta:
+        unique_together = ['company_department', 'company_position']
+        verbose_name = _("company department position")
+        verbose_name_plural = _("company department positions")
+
+    @classmethod
+    def _create(cls, **kwargs: Dict[str, Any]) -> Dict[str, Literal['is_success', True, False]]:
+        try:
+            fields = create_fields(**kwargs)
+            new = cls.objects.create(**fields)
+            return success_response(data=new)
+        except Exception as ex:
+            return error_response(message=str(ex))
+
+    @classmethod
+    def _update(cls, id: int, **kwargs) -> Dict[str, Literal['is_success', True, False]]:
+        try:
+            obj = cls.objects.get(id=id)
+            fields = create_fields(**kwargs)
+            obj.__dict__.update(**fields)
+            obj.save()
+            return success_response(data=obj)
+        except Exception as ex:
+            return error_response(message=str(ex))
+
+    @classmethod
+    def _get_all(cls) -> QuerySet['Company_department_position']:
+        return cls.objects.all()
+
+    @classmethod
+    def _get_by_id(cls, id: int) -> Optional['Company_department_position']:
+        try:
+            return cls.objects.get(id=id)
+        except:
+            return None
+
+
+    def __str__(self):
+        return f"{self.company_department.department}-{self.company_position.title}"
 
 class Company_branch(BaseModel):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
@@ -522,11 +521,11 @@ class Company_branch(BaseModel):
             return error_response(message=str(ex))
 
     @classmethod
-    def _get_all(cls) -> QuerySet['Department']:
+    def _get_all(cls) -> QuerySet['Company_branch']:
         return cls.objects.all()
 
     @classmethod
-    def _get_by_id(cls, id: int) -> Optional['Department']:
+    def _get_by_id(cls, id: int) -> Optional['Company_branch']:
         try:
             return cls.objects.get(id=id)
         except:
@@ -569,11 +568,11 @@ class Shift(BaseModel):
             return error_response(message=str(ex))
 
     @classmethod
-    def _get_all(cls) -> QuerySet['Department']:
+    def _get_all(cls) -> QuerySet['Shift']:
         return cls.objects.all()
 
     @classmethod
-    def _get_by_id(cls, id: int) -> Optional['Department']:
+    def _get_by_id(cls, id: int) -> Optional['Shift']:
         try:
             return cls.objects.get(id=id)
         except:
@@ -633,11 +632,12 @@ class Process(models.Model):
 
 class Action(models.Model):
     process = models.ForeignKey(Process, on_delete=models.DO_NOTHING)
-    title = models.CharField(max_length=255)
+    name = models.CharField(max_length=355)
+    code_name = models.CharField(max_length=255)
     route = models.CharField(max_length=355, null=True, blank=True)
 
     class Meta:
-        unique_together = ['process', 'title']
+        unique_together = ['process', 'code_name']
         permissions = [('dg_can_do_this_action', 'OBP can do this action')]
 
     @classmethod
