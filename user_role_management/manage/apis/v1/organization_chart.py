@@ -5,7 +5,7 @@ from rest_framework import status, serializers
 from drf_spectacular.utils import extend_schema
 from user_role_management.manage import models
 from user_role_management.api.mixins import ApiAuthMixin
-from user_role_management.core.permission import has_action_perm
+from user_role_management.core.permission import url_action_perm
 from user_role_management.manage.services import organization_chart as organization_chart_services
 from user_role_management.manage.selectors import organization_chart as organization_chart_selector
 from user_role_management.api.pagination import LimitOffsetPagination, get_paginated_response_context
@@ -46,14 +46,14 @@ class EmployeesApi(ApiAuthMixin, APIView):
         personnel_code = serializers.CharField(max_length=15, required=False)
 
     @extend_schema(request=InputEmployeeSerializer, responses=CustomEmployeeSingleResponseSerializer, tags=['Employee'])
-    @has_action_perm(process_name='user_management', action_name='can_add_employee', permission_codename='dg_can_do_this_action')
+    @url_action_perm(process_name='user_management', action_name='can_add_employee', permission_codename='dg_can_do_this_action')
     def post(self, request: HttpRequest):
         serializer = self.InputEmployeeSerializer(data=request.data)
         validation_result = handle_validation_error(serializer=serializer)
         if not isinstance(validation_result, bool):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
         try:
-            employee = organization_chart_services.create_employee(request, **serializer.validated_data)
+            employee = organization_chart_services.create_employee(request=request, **serializer.validated_data)
             if not employee['is_success']:
                 raise Exception(employee['message'])
             return Response(CustomEmployeeSingleResponseSerializer(employee, context={"request": request}).data)

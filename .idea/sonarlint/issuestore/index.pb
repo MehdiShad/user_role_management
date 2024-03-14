@@ -319,8 +319,6 @@ k
 ;user_role_management/manage/serializer/common_serializer.py,1\3\1361a35dd41ee0ca5b23268b2c158c00ba9c18ab
 ]
 -user_role_management/manage/selectors/user.py,0\e\0e569037cf1e1b59fa46881a82f94fa086477f11
-[
-+user_role_management/manage/apis/v1/user.py,e\6\e63e591707ea8b1f0d39a78efe86251f6e8c69b5
 \
 ,user_role_management/manage/services/user.py,4\5\452bcf949c0e5f50c38a0c66b8fb7639803f1285
 c
