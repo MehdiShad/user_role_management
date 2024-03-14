@@ -311,16 +311,10 @@ Z
 *user_role_management/guardian/shortcuts.py,7\2\72ecdf05f105b6a6a73a43c37a637325a7a3339e
 g
 7user_role_management/manage/selectors/process_action.py,8\0\80095ea7681401f6fdf979e559d27ee35c331c5b
-`
-0user_role_management/utils/serializer_handler.py,b\2\b25ad12fa808c74016b45529437bdf7e995a45b1
 W
 'user_role_management/core/exceptions.py,0\e\0e68e86b202b4da231df8aecd0169cdf4a9a0760
 k
 ;user_role_management/manage/serializer/common_serializer.py,1\3\1361a35dd41ee0ca5b23268b2c158c00ba9c18ab
-]
--user_role_management/manage/selectors/user.py,0\e\0e569037cf1e1b59fa46881a82f94fa086477f11
-\
-,user_role_management/manage/services/user.py,4\5\452bcf949c0e5f50c38a0c66b8fb7639803f1285
 c
 3user_role_management/guardian/apis/v1/permission.py,e\e\eee1bfa029160d5b5fe9b5e53aa36aa3e0873895
 a

@@ -8,17 +8,13 @@ from user_role_management.utils.services import create_fields
 from user_role_management.core.exceptions import error_response, success_response
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager as BUM, PermissionsMixin, Group, GroupManager, \
     Permission
-
-
-class UserTypesChoices(models.TextChoices):
-    STAFF = '1', 'staff'
-    CUSTOMER = '2', 'customer'
-    SUPERVISOR = '3', 'supervisor'
+from user_role_management.manage import model_choices
 
 
 def validate_user_type(value):
-    if value not in [choice[0] for choice in UserTypesChoices.choices]:
+    if value not in [choice[0] for choice in model_choices.UserTypesChoices.choices]:
         raise ValidationError(f"'{value}' is not a valid user type")
+
 
 def validate_last_company_logged_in(value):
     """
@@ -28,19 +24,13 @@ def validate_last_company_logged_in(value):
     pass
 
 
-class OrderStatusChoices(models.TextChoices):
-    SALESQUOTATION = '1', 'Sale quotation'
-    SALEORDER = '2', 'Sale order'
-    INVOICE = '3', 'Invoice'
-
-
 class BaseUserManager(BUM):
-    def create_user(self, email, is_active=True, is_admin=False, password=None, is_staff=False):
+    def create_user(self, email, is_active=True, is_admin=False, password=None, is_staff=False, type='2'):
         if not email:
             raise ValueError("manage must have an email address")
 
         user = self.model(email=self.normalize_email(email.lower()), is_active=is_active, is_admin=is_admin,
-                          is_staff=is_staff)
+                          is_staff=is_staff, type=type)
 
         if password is not None:
             user.set_password(password)
@@ -69,6 +59,7 @@ class BaseUserManager(BUM):
 
 class Company(BaseModel):
     title = models.CharField(max_length=155, unique=True)
+
     # users = models.ManyToManyField('BaseUser', related_name='users')
 
     class Meta:
@@ -175,9 +166,11 @@ class BaseUser(BaseModel, AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=255, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-    type = models.CharField(max_length=2, choices=UserTypesChoices.choices, default='2', validators=[validate_user_type])
+    type = models.CharField(max_length=2, choices=model_choices.UserTypesChoices.choices, default='2',
+                            validators=[validate_user_type])
     is_staff = models.BooleanField(default=False)
-    last_company_logged_in = models.ForeignKey(Company, on_delete=models.DO_NOTHING, null=True, blank=True, validators=[validate_last_company_logged_in])
+    last_company_logged_in = models.ForeignKey(Company, on_delete=models.DO_NOTHING, null=True, blank=True,
+                                               validators=[validate_last_company_logged_in])
     company_groups = models.ManyToManyField(
         Company_group,
         verbose_name=_("company_groups"),
@@ -233,6 +226,9 @@ class BaseUser(BaseModel, AbstractBaseUser, PermissionsMixin):
         except:
             return None
 
+    @classmethod
+    def filtered_by_company(cls, company: Company) -> QuerySet['BaseUser']:
+        return cls.objects.filter(companies=company)
 
     def __str__(self):
         return self.email
@@ -388,7 +384,6 @@ class Company_department(models.Model):
         except:
             return None
 
-
     def __str__(self):
         return f"{self.company.title}-{self.department}"
 
@@ -396,13 +391,13 @@ class Company_department(models.Model):
 class Company_department_employee(models.Model):
     company_department = models.ForeignKey(Company_department, on_delete=models.DO_NOTHING)
     employee = models.ForeignKey(Employee, on_delete=models.DO_NOTHING, related_name='employee')
-    supervisor = models.ForeignKey(Employee, on_delete=models.DO_NOTHING, related_name='supervisor', null=True, blank=True)
+    supervisor = models.ForeignKey(Employee, on_delete=models.DO_NOTHING, related_name='supervisor', null=True,
+                                   blank=True)
 
     class Meta:
         verbose_name = _("company department employee")
         verbose_name_plural = _("company department employees")
         unique_together = ['company_department', 'employee']
-
 
     @classmethod
     def _create(cls, **kwargs: Dict[str, Any]) -> Dict[str, Literal['is_success', True, False]]:
@@ -438,7 +433,6 @@ class Company_department_employee(models.Model):
             return cls.objects.get(id=id)
         except:
             return None
-
 
     def __str__(self):
         return f"{self.company_department}-{self.employee.user.email}"
@@ -484,9 +478,9 @@ class Company_department_position(models.Model):
         except:
             return None
 
-
     def __str__(self):
         return f"{self.company_department.department}-{self.company_position.title}"
+
 
 class Company_branch(BaseModel):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
@@ -498,7 +492,6 @@ class Company_branch(BaseModel):
         verbose_name = _("company branch")
         verbose_name_plural = _("company branches")
         unique_together = ['company', 'branch_title']
-
 
     @classmethod
     def _create(cls, **kwargs: Dict[str, Any]) -> Dict[str, Literal['is_success', True, False]]:
@@ -545,7 +538,6 @@ class Shift(BaseModel):
 
     class Meta:
         unique_together = ['started_at', 'ended_at']
-
 
     @classmethod
     def _create(cls, **kwargs: Dict[str, Any]) -> Dict[str, Literal['is_success', True, False]]:
@@ -683,7 +675,7 @@ class Action(models.Model):
 class Order(BaseModel):
     order_total = models.IntegerField()
     customer = models.ForeignKey(BaseUser, on_delete=models.DO_NOTHING)
-    status = models.CharField(max_length=50, choices=OrderStatusChoices.choices, default='2')
+    status = models.CharField(max_length=50, choices=model_choices.OrderStatusChoices.choices, default='2')
 
     def __str__(self):
         return f"{self.customer}: {self.order_total}"

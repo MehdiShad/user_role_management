@@ -4,37 +4,34 @@ from rest_framework.response import Response
 from rest_framework import status, serializers
 from drf_spectacular.utils import extend_schema
 from django.core.validators import MinLengthValidator
+from user_role_management.manage.models import BaseUser
 from user_role_management.api.mixins import ApiAuthMixin
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from user_role_management.manage.services import user as user_services
 from user_role_management.manage.selectors import user as user_selector
-from user_role_management.manage.models import BaseUser, UserTypesChoices
+from user_role_management.manage.model_choices import UserTypesChoices
 from user_role_management.api.pagination import LimitOffsetPagination, get_paginated_response_context
 from user_role_management.core.exceptions import handle_validation_error, error_response, success_response
 from user_role_management.manage.validators import number_validator, special_char_validator, letter_validator
+from user_role_management.utils.serializer_handler import CustomSingleResponseSerializerBase, \
+    CustomMultiResponseSerializerBase
 
 
 class OutPutUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = BaseUser
-        fields = '__all__'
+        # fields = '__all__'
+        exclude = ['user_permissions', 'company_groups', 'companies', 'groups', 'last_company_logged_in']
 
 
-class CustomUserSingleResponseSerializer(serializers.Serializer):
-    is_success = serializers.BooleanField(default=True)
+class CustomUserSingleResponseSerializer(CustomSingleResponseSerializerBase):
     data = OutPutUserSerializer()
 
     class Meta:
         fields = ('is_success', 'data')
 
 
-class CustomUserMultiResponseSerializer(serializers.Serializer):
-    is_success = serializers.BooleanField(default=True)
-    limit = serializers.IntegerField()
-    offset = serializers.IntegerField()
-    count = serializers.IntegerField()
-    next = serializers.CharField()
-    previous = serializers.CharField()
+class CustomUserMultiResponseSerializer(CustomMultiResponseSerializerBase):
     data = serializers.ListSerializer(child=OutPutUserSerializer())
 
     class Meta:
@@ -68,7 +65,9 @@ class UsersApi(ApiAuthMixin, APIView):
         last_name = serializers.CharField(max_length=255, required=False)
         type = serializers.CharField(max_length=2, required=False)
         last_company_logged_in_id = serializers.IntegerField(required=False)
-
+        search = serializers.CharField(required=False)
+        limit = serializers.IntegerField(required=False)
+        offset = serializers.IntegerField(required=False)
 
     class InputRegisterSerializer(serializers.Serializer):
         email = serializers.EmailField(max_length=255)
@@ -77,7 +76,7 @@ class UsersApi(ApiAuthMixin, APIView):
                 number_validator,
                 letter_validator,
                 special_char_validator,
-                MinLengthValidator(limit_value=10)
+                MinLengthValidator(limit_value=8)
             ]
         )
         confirm_password = serializers.CharField(max_length=255)
@@ -111,7 +110,6 @@ class UsersApi(ApiAuthMixin, APIView):
 
             data["refresh"] = str(refresh)
             data["access"] = str(refresh.access_token)
-
             return data
 
     @extend_schema(request=InputRegisterSerializer, responses=OutPutRegisterSerializer, tags=['User'])
@@ -125,9 +123,8 @@ class UsersApi(ApiAuthMixin, APIView):
             )
         except Exception as ex:
             response = error_response(message=str(ex))
-            return Response(response,status=status.HTTP_400_BAD_REQUEST)
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
         return Response(self.OutPutRegisterSerializer(user, context={"request": request}).data)
-
 
     @extend_schema(parameters=[FilterUserSerializer], responses=CustomUserMultiResponseSerializer, tags=['User'])
     def get(self, request: HttpRequest):
@@ -137,7 +134,7 @@ class UsersApi(ApiAuthMixin, APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            users = user_selector.get_users(request, **filter_serializer.validated_data)
+            users = user_selector.get_users(request, filters=filter_serializer.validated_data)
             return get_paginated_response_context(
                 request=request,
                 pagination_class=self.Pagination,
@@ -157,7 +154,6 @@ class UserApi(ApiAuthMixin, APIView):
         last_name = serializers.CharField(max_length=255, required=False)
         type = serializers.CharField(max_length=2, required=False)
         last_company_logged_in_id = serializers.IntegerField(required=False)
-
 
     @extend_schema(responses=CustomUserSingleResponseSerializer, tags=['User'])
     def get(self, request: HttpRequest, user_id: int):
@@ -185,6 +181,7 @@ class UserApi(ApiAuthMixin, APIView):
         except Exception as ex:
             response = error_response(message=str(ex))
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
 
 class AssignPermission(ApiAuthMixin, APIView):
     pass
