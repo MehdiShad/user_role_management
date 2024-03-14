@@ -134,7 +134,7 @@ class UsersApi(ApiAuthMixin, APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            users = user_selector.get_users(request, filters=filter_serializer.validated_data)
+            users = user_selector.get_filtered_users(request, filters=filter_serializer.validated_data)
             return get_paginated_response_context(
                 request=request,
                 pagination_class=self.Pagination,

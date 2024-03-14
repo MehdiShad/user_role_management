@@ -7,7 +7,7 @@ from user_role_management.core.exceptions import error_response, success_respons
 from user_role_management.manage.filters import user as user_filter
 
 
-def get_users(request, filters=None) -> QuerySet[BaseUser]:
+def get_filtered_users(request, filters=None) -> QuerySet[BaseUser]:
     filters = filters or {}
     user = request.user
     qs = BaseUser.filtered_by_company(company=user.last_company_logged_in).order_by('-id')
