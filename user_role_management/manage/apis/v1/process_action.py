@@ -9,7 +9,8 @@ from user_role_management.manage.services import process_action as process_actio
 from user_role_management.manage.selectors import process_action as process_action_selector
 from user_role_management.api.pagination import LimitOffsetPagination, get_paginated_response_context
 from user_role_management.core.exceptions import handle_validation_error, error_response, success_response
-from user_role_management.utils.serializer_handler import CustomSingleResponseSerializerBase, CustomMultiResponseSerializerBase
+from user_role_management.utils.serializer_handler import CustomSingleResponseSerializerBase, \
+    CustomMultiResponseSerializerBase, FilterWithSearchSerializerBase
 
 
 class OutPutProcessSerializer(serializers.ModelSerializer):
@@ -40,8 +41,10 @@ class ProcessesApi(ApiAuthMixin, APIView):
         company_id = serializers.IntegerField()
         name = serializers.CharField(max_length=155)
 
-    class FilterProcessSerializer(serializers.Serializer):
+    class FilterProcessSerializer(FilterWithSearchSerializerBase, InputProcessSerializer):
         name = serializers.CharField(max_length=155, required=False)
+        company_id = serializers.IntegerField(required=False)
+        id_deleted = serializers.BooleanField(required=False)
 
     @extend_schema(request=InputProcessSerializer, responses=CustomProcessSingleResponseSerializer, tags=['Process'])
     def post(self, request: HttpRequest):
@@ -67,7 +70,8 @@ class ProcessesApi(ApiAuthMixin, APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            processes = process_action_selector.get_filtered_processes(request, filters=filter_serializer.validated_data)
+            processes = process_action_selector.get_filtered_processes(request,
+                                                                       filters=filter_serializer.validated_data)
             return get_paginated_response_context(
                 request=request,
                 pagination_class=self.Pagination,
@@ -104,7 +108,8 @@ class ProcessApi(ApiAuthMixin, APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            process = process_action_services.update_process(request=request, id=process_id, **serializer.validated_data)
+            process = process_action_services.update_process(request=request, id=process_id,
+                                                             **serializer.validated_data)
             if not process['is_success']:
                 raise Exception(process['message'])
             return Response(CustomProcessSingleResponseSerializer(process, context={"request": request}).data)
@@ -141,10 +146,14 @@ class ActionsApi(ApiAuthMixin, APIView):
 
     class InputActionSerializer(serializers.Serializer):
         process_id = serializers.IntegerField()
-        title = serializers.CharField(max_length=155)
+        name = serializers.CharField(max_length=155)
+        code_name = serializers.CharField(max_length=155)
+        route = serializers.CharField(max_length=155, required=False)
 
-    class FilterActionSerializer(serializers.Serializer):
-        title = serializers.CharField(max_length=155, required=False)
+    class FilterActionSerializer(FilterWithSearchSerializerBase, InputActionSerializer):
+        process_id = serializers.IntegerField(required=False)
+        name = serializers.CharField(max_length=155, required=False)
+        code_name = serializers.CharField(max_length=155, required=False)
 
     @extend_schema(request=InputActionSerializer, responses=CustomActionSingleResponseSerializer, tags=['Action'])
     def post(self, request: HttpRequest):
@@ -198,7 +207,6 @@ class ActionApi(ApiAuthMixin, APIView):
         except Exception as ex:
             response = error_response(message=str(ex))
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
-
 
     @extend_schema(request=UpdateActionSerializer, responses=CustomActionSingleResponseSerializer, tags=['Action'])
     def put(self, request: HttpRequest, action_id: int):

@@ -11,7 +11,7 @@ from user_role_management.manage.selectors import permission as permission_selec
 from user_role_management.api.pagination import LimitOffsetPagination, get_paginated_response_context
 from user_role_management.core.exceptions import handle_validation_error, error_response, success_response
 from user_role_management.utils.serializer_handler import CustomSingleResponseSerializerBase, \
-    CustomMultiResponseSerializerBase
+    CustomMultiResponseSerializerBase, FilterWithSearchSerializerBase
 
 
 class OutPutPermissionSerializer(serializers.ModelSerializer):
@@ -39,10 +39,14 @@ class PermissionsApi(ApiAuthMixin, APIView):
         default_limit = 50
 
     class InputPermissionSerializer(serializers.Serializer):
-        title = serializers.CharField(max_length=155)
+        name = serializers.CharField(max_length=155)
+        codename = serializers.CharField(max_length=155)
+        content_type_id = serializers.IntegerField()
 
-    class FilterPermissionSerializer(serializers.Serializer):
-        title = serializers.CharField(max_length=155, required=False)
+    class FilterPermissionSerializer(FilterWithSearchSerializerBase):
+        name = serializers.CharField(max_length=155, required=False)
+        codename = serializers.CharField(max_length=155, required=False)
+        content_type_id = serializers.IntegerField(required=False)
 
     @extend_schema(request=InputPermissionSerializer, responses=CustomPermissionSingleResponseSerializer,
                    tags=['Permission'])
@@ -69,7 +73,7 @@ class PermissionsApi(ApiAuthMixin, APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            permissions = permission_selector.get_permissions(request)
+            permissions = permission_selector.get_filtered_permissions(request, filters=filter_serializer.validated_data)
             return get_paginated_response_context(
                 request=request,
                 pagination_class=self.Pagination,
@@ -144,10 +148,12 @@ class UserPermissionsApi(ApiAuthMixin, APIView):
         default_limit = 50
 
     class InputPermissionSerializer(serializers.Serializer):
-        title = serializers.CharField(max_length=155)
+        # title = serializers.CharField(max_length=155)
+        pass
 
-    class FilterPermissionSerializer(serializers.Serializer):
-        title = serializers.CharField(max_length=155, required=False)
+    class FilterPermissionSerializer(FilterWithSearchSerializerBase):
+        # title = serializers.CharField(max_length=155, required=False)
+        pass
 
     @extend_schema(parameters=[FilterPermissionSerializer], responses=CustomPermissionMultiResponseSerializer,
                    tags=['Permission'])

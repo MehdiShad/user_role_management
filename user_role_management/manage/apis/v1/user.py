@@ -14,7 +14,7 @@ from user_role_management.api.pagination import LimitOffsetPagination, get_pagin
 from user_role_management.core.exceptions import handle_validation_error, error_response, success_response
 from user_role_management.manage.validators import number_validator, special_char_validator, letter_validator
 from user_role_management.utils.serializer_handler import CustomSingleResponseSerializerBase, \
-    CustomMultiResponseSerializerBase
+    CustomMultiResponseSerializerBase, FilterWithSearchSerializerBase
 
 
 class OutPutUserSerializer(serializers.ModelSerializer):
@@ -59,15 +59,12 @@ class UsersApi(ApiAuthMixin, APIView):
         #         raise serializers.ValidationError(f"'{value}' is not a valid user type.")
         #     return value
 
-    class FilterUserSerializer(serializers.Serializer):
+    class FilterUserSerializer(FilterWithSearchSerializerBase):
         email = serializers.EmailField(max_length=255, required=False)
         first_name = serializers.CharField(max_length=255, required=False)
         last_name = serializers.CharField(max_length=255, required=False)
         type = serializers.CharField(max_length=2, required=False)
         last_company_logged_in_id = serializers.IntegerField(required=False)
-        search = serializers.CharField(required=False)
-        limit = serializers.IntegerField(required=False)
-        offset = serializers.IntegerField(required=False)
 
     class InputRegisterSerializer(serializers.Serializer):
         email = serializers.EmailField(max_length=255)

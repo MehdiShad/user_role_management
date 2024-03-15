@@ -11,7 +11,7 @@ class ProcessFilter(FilterSet):
 
     class Meta:
         model = Process
-        fields = ('name', 'company_id', 'created_by')
+        fields = ('name', 'company_id', 'created_by', 'is_deleted')
 
 
 class ActionFilter(FilterSet):

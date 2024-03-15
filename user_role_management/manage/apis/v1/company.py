@@ -10,7 +10,8 @@ from user_role_management.manage.services import company as company_services
 from user_role_management.manage.selectors import company as company_selector
 from user_role_management.api.pagination import LimitOffsetPagination, get_paginated_response_context
 from user_role_management.core.exceptions import handle_validation_error, error_response, success_response
-from user_role_management.utils.serializer_handler import CustomSingleResponseSerializerBase, CustomMultiResponseSerializerBase
+from user_role_management.utils.serializer_handler import CustomSingleResponseSerializerBase, \
+    CustomMultiResponseSerializerBase, FilterWithSearchSerializerBase
 
 
 class OutPutCompanySerializer(serializers.ModelSerializer):
@@ -40,7 +41,7 @@ class CompaniesApi(ApiAuthMixin, APIView):
     class InputCompanySerializer(serializers.Serializer):
         title = serializers.CharField(max_length=155)
 
-    class FilterCompanySerializer(serializers.Serializer):
+    class FilterCompanySerializer(FilterWithSearchSerializerBase):
         title = serializers.CharField(max_length=155, required=False)
 
     @extend_schema(request=InputCompanySerializer, responses=CustomCompanySingleResponseSerializer, tags=['Company'])
@@ -141,7 +142,6 @@ class GroupsApi(ApiAuthMixin, APIView):
     class InputGroupSerializer(serializers.Serializer):
         name = serializers.CharField(max_length=150)
 
-
     class FilterGroupSerializer(serializers.Serializer):
         name = serializers.CharField(max_length=150, required=False)
 
@@ -217,7 +217,6 @@ class GroupApi(ApiAuthMixin, APIView):
 # =================================================================
 
 
-
 class OutPutCompanyGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Company_group
@@ -249,7 +248,8 @@ class CompanyGroupsApi(ApiAuthMixin, APIView):
     class FilterCompanyGroupSerializer(serializers.Serializer):
         title = serializers.CharField(max_length=155, required=False)
 
-    @extend_schema(request=InputCompanyGroupSerializer, responses=CustomCompanyGroupSingleResponseSerializer, tags=['Group'])
+    @extend_schema(request=InputCompanyGroupSerializer, responses=CustomCompanyGroupSingleResponseSerializer,
+                   tags=['Group'])
     def post(self, request: HttpRequest):
         serializer = self.InputCompanyGroupSerializer(data=request.data)
         validation_result = handle_validation_error(serializer=serializer)
@@ -259,7 +259,8 @@ class CompanyGroupsApi(ApiAuthMixin, APIView):
             company_group = company_services.create_company_group(request=request, **serializer.validated_data)
             if not company_group['is_success']:
                 raise Exception(company_group['message'])
-            return Response(CustomCompanyGroupSingleResponseSerializer(company_group, context={"request": request}).data)
+            return Response(
+                CustomCompanyGroupSingleResponseSerializer(company_group, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
@@ -297,12 +298,14 @@ class CompanyGroupApi(ApiAuthMixin, APIView):
             company_group = company_selector.get_company_group(request=request, id=company_group_id)
             if not company_group['is_success']:
                 raise Exception(company_group['message'])
-            return Response(CustomCompanyGroupSingleResponseSerializer(company_group, context={"request": request}).data)
+            return Response(
+                CustomCompanyGroupSingleResponseSerializer(company_group, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
-    @extend_schema(request=UpdateCompanyGroupSerializer, responses=CustomCompanyGroupSingleResponseSerializer, tags=['Group'])
+    @extend_schema(request=UpdateCompanyGroupSerializer, responses=CustomCompanyGroupSingleResponseSerializer,
+                   tags=['Group'])
     def put(self, request: HttpRequest, company_group_id: int):
         serializer = self.UpdateCompanyGroupSerializer(data=request.data)
         validation_result = handle_validation_error(serializer=serializer)
@@ -310,19 +313,18 @@ class CompanyGroupApi(ApiAuthMixin, APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            company_group = company_services.update_company_group(request=request, id=company_group_id, **serializer.validated_data)
+            company_group = company_services.update_company_group(request=request, id=company_group_id,
+                                                                  **serializer.validated_data)
             if not company_group['is_success']:
                 raise Exception(company_group['message'])
-            return Response(CustomCompanyGroupSingleResponseSerializer(company_group, context={"request": request}).data)
+            return Response(
+                CustomCompanyGroupSingleResponseSerializer(company_group, context={"request": request}).data)
         except Exception as ex:
             response = error_response(message=str(ex))
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-
-
-#===============================================================
+# ===============================================================
 class OutPutCompanyBranchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Company_branch
@@ -353,7 +355,8 @@ class CompanyBranchesApi(ApiAuthMixin, APIView):
     class FilterCompanyBranchSerializer(serializers.Serializer):
         title = serializers.CharField(max_length=155, required=False)
 
-    @extend_schema(request=InputCompanyBranchSerializer, responses=CustomCompanyBranchSingleResponseSerializer, tags=['Branch'])
+    @extend_schema(request=InputCompanyBranchSerializer, responses=CustomCompanyBranchSingleResponseSerializer,
+                   tags=['Branch'])
     def post(self, request: HttpRequest):
         serializer = self.InputCompanyBranchSerializer(data=request.data)
         validation_result = handle_validation_error(serializer=serializer)
@@ -405,7 +408,8 @@ class CompanyBranchApi(ApiAuthMixin, APIView):
             response = error_response(message=str(ex))
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
-    @extend_schema(request=UpdateCompanyBranchSerializer, responses=CustomCompanyBranchSingleResponseSerializer, tags=['Branch'])
+    @extend_schema(request=UpdateCompanyBranchSerializer, responses=CustomCompanyBranchSingleResponseSerializer,
+                   tags=['Branch'])
     def put(self, request: HttpRequest, company_id: int):
         serializer = self.UpdateCompanyBranchSerializer(data=request.data)
         validation_result = handle_validation_error(serializer=serializer)
@@ -413,7 +417,8 @@ class CompanyBranchApi(ApiAuthMixin, APIView):
             return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            company = company_services.update_company_branch(request=request, id=company_id, **serializer.validated_data)
+            company = company_services.update_company_branch(request=request, id=company_id,
+                                                             **serializer.validated_data)
             if not company['is_success']:
                 raise Exception(company['message'])
             return Response(CustomCompanyBranchSingleResponseSerializer(company, context={"request": request}).data)

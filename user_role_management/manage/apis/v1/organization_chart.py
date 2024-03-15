@@ -10,7 +10,7 @@ from user_role_management.manage.services import organization_chart as organizat
 from user_role_management.manage.selectors import organization_chart as organization_chart_selector
 from user_role_management.api.pagination import LimitOffsetPagination, get_paginated_response_context
 from user_role_management.core.exceptions import handle_validation_error, error_response, success_response
-from user_role_management.utils.serializer_handler import CustomSingleResponseSerializerBase, CustomMultiResponseSerializerBase
+from user_role_management.utils.serializer_handler import CustomSingleResponseSerializerBase, CustomMultiResponseSerializerBase, FilterWithSearchSerializerBase
 
 
 class OutPutEmployeeSerializer(serializers.ModelSerializer):
@@ -42,7 +42,7 @@ class EmployeesApi(ApiAuthMixin, APIView):
         personnel_code = serializers.CharField(max_length=45)
         user_id = serializers.IntegerField()
 
-    class FilterEmployeeSerializer(serializers.Serializer):
+    class FilterEmployeeSerializer(FilterWithSearchSerializerBase):
         personnel_code = serializers.CharField(max_length=15, required=False)
 
     @extend_schema(request=InputEmployeeSerializer, responses=CustomEmployeeSingleResponseSerializer, tags=['Employee'])
@@ -150,7 +150,7 @@ class CompanyPositionsApi(ApiAuthMixin, APIView):
         title = serializers.CharField(max_length=155)
         abbreviation = serializers.CharField(max_length=55, required=False)
 
-    class FilterCompanyPositionSerializer(InputCompanyPositionSerializer):
+    class FilterCompanyPositionSerializer(FilterWithSearchSerializerBase, InputCompanyPositionSerializer):
         title = serializers.CharField(max_length=155, required=False)
 
     @extend_schema(request=InputCompanyPositionSerializer, responses=CustomCompanyPositionSingleResponseSerializer, tags=['Position'])
@@ -253,12 +253,13 @@ class CompanyDepartmentsApi(ApiAuthMixin, APIView):
 
     class InputCompanyDepartmentSerializer(serializers.Serializer):
         company_id = serializers.IntegerField()
-        department_id = serializers.IntegerField()
+        department = serializers.CharField(max_length=255)
         parent_department_id = serializers.IntegerField(required=False)
         manager_id = serializers.IntegerField(required=False)
 
-    class FilterCompanyDepartmentSerializer(serializers.Serializer):
-        title = serializers.CharField(max_length=155, required=False)
+    class FilterCompanyDepartmentSerializer(FilterWithSearchSerializerBase, InputCompanyDepartmentSerializer):
+        company_id = serializers.IntegerField(required=False)
+        department = serializers.CharField(max_length=255, required=False)
 
     @extend_schema(request=InputCompanyDepartmentSerializer, responses=CustomCompanyDepartmentSingleResponseSerializer,
                    tags=['Department'])
@@ -372,8 +373,9 @@ class CompanyDepartmentEmployeesApi(ApiAuthMixin, APIView):
         employee_id = serializers.IntegerField()
         supervisor_id = serializers.IntegerField(required=False)
 
-    class FilterCompanyDepartmentEmployeeSerializer(serializers.Serializer):
-        title = serializers.CharField(max_length=155, required=False)
+    class FilterCompanyDepartmentEmployeeSerializer(FilterWithSearchSerializerBase, InputCompanyDepartmentEmployeeSerializer):
+        company_department_id = serializers.IntegerField(required=False)
+        employee_id = serializers.IntegerField(required=False)
 
     @extend_schema(request=InputCompanyDepartmentEmployeeSerializer,
                    responses=CustomCompanyDepartmentEmployeeSingleResponseSerializer,
@@ -488,8 +490,10 @@ class CompanyDepartmentPositionsApi(ApiAuthMixin, APIView):
         personnel_code = serializers.CharField(max_length=45)
         user_id = serializers.IntegerField()
 
-    class FilterCompanyDepartmentPositionSerializer(serializers.Serializer):
+    class FilterCompanyDepartmentPositionSerializer(FilterWithSearchSerializerBase, InputCompanyDepartmentPositionSerializer):
+        company_id = serializers.IntegerField(required=False)
         personnel_code = serializers.CharField(max_length=15, required=False)
+        user_id = serializers.IntegerField(required=False)
 
     @extend_schema(request=InputCompanyDepartmentPositionSerializer, responses=CustomCompanyDepartmentPositionSingleResponseSerializer, tags=['DepartmentPosition'])
     def post(self, request: HttpRequest):
