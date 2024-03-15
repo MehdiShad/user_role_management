@@ -88,7 +88,7 @@ class UsersApi(ApiAuthMixin, APIView):
                 raise serializers.ValidationError("Please fill password and confirm password")
 
             if data.get("password") != data.get("confirm_password"):
-                raise serializers.ValidationError("confirm password is not equal to password")
+                raise serializers.ValidationError("Confirm password is not equal to password")
             return data
 
     class OutPutRegisterSerializer(serializers.ModelSerializer):

@@ -313,7 +313,5 @@ c
 3user_role_management/guardian/apis/v1/permission.py,e\e\eee1bfa029160d5b5fe9b5e53aa36aa3e0873895
 E
 requirements/base.txt,a\5\a53d00307871abc09608b3e4fdabb0cfc4ae7d9b
-B
-docker-compose.yml,3\5\35b8c13cf2eb2a194eada000eb310d65aed53b2a
 H
 docker/web_entrypoint.sh,4\9\494f60a018caa95e1b229c85e5a64e7284a7df51

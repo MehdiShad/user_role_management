@@ -25,6 +25,7 @@ services:
   #      retries: 3
   django_gunicorn:
     volumes:
+      - .:/app
       - static:/static
     env_file:
       - .env
@@ -32,7 +33,15 @@ services:
       context: .
       dockerfile: docker/production.Dockerfile
     container_name: django_gunicorn
-    command: docker/web_entrypoint.sh
+#    command: docker/web_entrypoint.sh
+    command: >
+      bash -c "
+      python manage.py makemigrations &&
+      python manage.py migrate &&
+      python manage.py collectstatic --clear --noinput &&
+      python manage.py collectstatic --noinput &&
+      python manage.py runserver 0.0.0.0:8000"
+
 #    command: gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
 #    command: gunicorn config.asgi:application -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
     ports:
