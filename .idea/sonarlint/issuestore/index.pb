@@ -253,8 +253,6 @@ Y
 )user_role_management/guardian/managers.py,9\2\92fcc69566e03e3b85ff77d3d85baf967d9e02d1
 h
 8user_role_management/guardian/migrations/0002_initial.py,8\3\83c09a551265c23f78921484821cbeeeb757fd07
-E
-config/django/base.py,6\0\60644085b2171708e3d6fe56d38d0263bd81a954
 W
 'user_role_management/guardian/mixins.py,3\2\32f0bcafd378a0dc05267c56d2adb7efa8a9c526
 U
