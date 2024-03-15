@@ -27,3 +27,4 @@ Faker==15.1.1
 factory-boy==3.2.1
 pytest==7.2.0
 pytest-django==4.5.2
+uvicorn==0.27.1

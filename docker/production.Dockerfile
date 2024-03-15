@@ -8,5 +8,7 @@ RUN pip install -r requirements/production.txt
 
 # Get the django project into the docker container
 RUN mkdir /app
+COPY ./docker/web_entrypoint.sh /app/docker/web_entrypoint.sh
+RUN chmod +x /app/docker/web_entrypoint.sh
 WORKDIR /app
 ADD ./ /app/
