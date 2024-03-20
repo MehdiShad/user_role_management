@@ -83,8 +83,6 @@ _
 0user_role_management/core/migrations/__init__.py,7\c\7ce0dce69199c5b0dee5e1cbd20bbd95d8006bbb
 J
 docker-compose.dev.dev.yml,1\5\15824ad039b55132faaf317bcceed3dfbb85ce07
-F
-docker-compose.dev.yml,c\1\c1cf370751a1690d931dc6284fef1136444f4737
 b
 2user_role_management/common/migrations/__init__.py,a\9\a91de735fb861869dd2bc0831d45db505cb8e325
 >
@@ -112,8 +110,6 @@ pytest.ini,e\a\ea898f73cf4daab2e41a2c710093f364ce6a7d1b
 	setup.cfg,8\c\8c91c0296909b5ea3c496fde69e9dc44a6c6ae5f
 8
 mypy.ini,4\e\4e4336a100ab92aff37fc784daba7865edad7708
->
-wait-for-it.sh,0\7\0787645e1b0808b718bda7cb9f13dd1e488b85e5
 D
 requirements_dev.txt,4\f\4f2635af2925e26f29dc5bdc1b7795d69394f790
 <
@@ -174,19 +170,12 @@ Wuser_role_management/guardian/templates/admin/guardian/model/obj_perms_manage_u
 Ruser_role_management/guardian/templates/admin/guardian/model/obj_perms_manage.html,b\2\b29d6e35932d87aa7c311f27063651f265358c23
 U
 %user_role_management/common/models.py,4\9\498a846e01d7279ac489668385d09702aa629efe
-:
-
-.gitignore,a\5\a5cc2925ca8258af241be7e5b0381edf30266302
 [
 +user_role_management/authentication/apps.py,a\0\a026504b07a3a588050d2690ae780b773426f674
 [
 +user_role_management/authentication/urls.py,7\6\763a9e7ec1c961b51dda42c8702b94283f06210d
 \
 ,user_role_management/authentication/views.py,6\8\68be6e15a2aa89b8f452c9d1e746fc5e0f0862ee
-d
-4user_role_management/guardian/migrations/__init__.py,6\d\6d5dd7a3de4413648b4e5a7fa68b1614104d6fd4
-l
-<user_role_management/guardian/testapp/migrations/__init__.py,7\1\710845eec73d9d261a70f7042835d5449fdee9e3
 W
 'user_role_management/manage/__init__.py,b\0\b0f8d7e4ad4ade479bbdc8ac2a29059de06b93c3
 Y

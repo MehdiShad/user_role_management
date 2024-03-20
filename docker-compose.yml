@@ -3,6 +3,7 @@ version: "3.3"
 services:
   db:
     image: postgres:14.1
+    restart: unless-stopped
     volumes:
       - ./data/db:/var/lib/postgresql/data
     container_name: user_role_management_db
