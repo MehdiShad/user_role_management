@@ -37,8 +37,6 @@ K
 requirements/production.txt,1\6\16a2dd8249fb8a45edf46afc995aa4f6c52ace61
 K
 config/django/production.py,8\8\88f4755ab932efa1375af32d443b736a9b004bf8
-L
-docker/production.Dockerfile,6\4\64e6e11e29d81373fdf2bf67dd2ee0ee6857a452
 P
  config/settings/email_sending.py,8\2\82c1af238b7a6a537f23e49c08c33420bf558f68
 P

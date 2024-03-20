@@ -25,11 +25,13 @@ services:
       dockerfile: docker/production.Dockerfile
     container_name: django_gunicorn
     command: >
-      bash -c "python manage.py makemigrations &&
-                python manage.py migrate &&
-                python manage.py collectstatic --clear --noinput &&
-                python manage.py collectstatic --noinput &&
-                gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+      bash -c "
+      sleep 10 &&  # Add a delay to ensure the database is fully initialized
+      python manage.py makemigrations &&
+      python manage.py migrate &&
+      python manage.py collectstatic --clear --noinput &&
+      python manage.py collectstatic --noinput &&
+      gunicorn config.wsgi:application --bind 0.0.0.0:8000"
     ports:
       - "8061:8000"
     depends_on:
