@@ -24,7 +24,7 @@ services:
       context: .
       dockerfile: docker/production.Dockerfile
     container_name: django_gunicorn
-    command: app/docker/web_entrypoint.sh
+    command: docker/web_entrypoint.sh
     ports:
       - "8061:8000"
     depends_on:
