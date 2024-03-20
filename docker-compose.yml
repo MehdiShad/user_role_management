@@ -25,9 +25,7 @@ services:
       dockerfile: docker/production.Dockerfile
     container_name: django_gunicorn
     command: >
-      bash -c "sleep 3 &&
-                python manage.py makemigrations &&
-                python manage.py migrate &&
+      bash -c "python manage.py migrate &&
                 sleep 5 &&
                 python manage.py collectstatic --clear --noinput &&
                 python manage.py collectstatic --noinput &&
