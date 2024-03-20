@@ -14,3 +14,7 @@ python manage.py collectstatic --noinput
 echo "--> Starting web process"
 #gunicorn config.wsgi:application -b 0.0.0.0:8000
 gunicorn config.asgi:application -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
+
+#    command: gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
+#    command: gunicorn config.asgi:application -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
+# gunicorn myproject.wsgi:application --bind

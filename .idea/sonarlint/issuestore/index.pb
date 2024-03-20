@@ -311,8 +311,6 @@ c
 3user_role_management/guardian/apis/v1/permission.py,e\e\eee1bfa029160d5b5fe9b5e53aa36aa3e0873895
 E
 requirements/base.txt,a\5\a53d00307871abc09608b3e4fdabb0cfc4ae7d9b
-H
-docker/web_entrypoint.sh,4\9\494f60a018caa95e1b229c85e5a64e7284a7df51
 T
 $user_role_management/manage/admin.py,5\0\50ed3f98580d17103551d609d28f0dea7bad8b36
 _
