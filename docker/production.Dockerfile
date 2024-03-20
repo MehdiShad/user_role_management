@@ -12,3 +12,4 @@ WORKDIR /app
 ADD ./ /app/
 
 RUN chmod +x /app/docker/web_entrypoint.sh
+CMD ["./docker/web_entrypoint.sh"]
