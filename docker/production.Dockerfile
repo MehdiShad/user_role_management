@@ -14,6 +14,6 @@ RUN pip install -r requirements/production.txt
 RUN mkdir /app
 WORKDIR /app
 ADD ./ /app/
-
+COPY docker/web_entrypoint.sh /app/docker/web_entrypoint.sh
 RUN chmod +x /app/docker/web_entrypoint.sh
 
